@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.Vector;
 
 /*
 Handles all database access methods
@@ -89,6 +90,7 @@ public class DB {
                             "Cut varchar(64)," + // "Director's Cut"
                             "PRIMARY KEY(TitleID)," +
                             "FOREIGN KEY(TitleID) REFERENCES Title(TitleID)" +
+                            "ON DELETE CASCADE " +
                             ")",
                     "CREATE TABLE IF NOT EXISTS TVShow(" +
                             "TitleID int NOT NULL," +
@@ -96,6 +98,7 @@ public class DB {
                             "Rating varchar(8)," + //"TV-14"
                             "PRIMARY KEY(TitleID)," +
                             "FOREIGN KEY(TitleID) REFERENCES Title(TitleID)" +
+                            "ON DELETE CASCADE " +
                             ")"
             };
             for(int s = 0; s < createTableSQL.length; s++) {
@@ -305,4 +308,33 @@ public class DB {
         }
     }
 
+    Vector<Title> fetchAllTitles() {
+        //TODO query
+        return new Vector<>();
+    }
+
+    void updateContainer(int currentID, Container container) {
+    }
+
+    void updateMovie(int currentID, Movie movie) {
+        //TODO update
+    }
+
+    void updateTVShow(int currentID, TVShow tvShow) {
+        //TODO update
+    }
+
+    void delete(Title title) {
+        //TODO drop - be sure to cascade to Movie or TVShow
+    }
+
+
+    void deleteTitle(Title title) {
+        //only used for accidental entries - should really drop parent Container
+        //TODO drop - be sure to casade to Movie or TVShow
+    }
+
+    void deleteContainer(Container container) {
+        //TODO drop
+    }
 }

@@ -20,6 +20,8 @@ class Container {
     boolean sell;
     boolean sold;
 
+    //TODO store Vector of Titles here?
+
     //Construct with just name. Other fields are optional, use setters
     Container(String name) {
         this.name = name;

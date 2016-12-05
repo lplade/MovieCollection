@@ -1,5 +1,14 @@
 /**
- * Created by lade on 12/2/16.
+ * Location.java
+ *
+ * This stores a physical location where a container can be found
+ *
  */
-public class Location {
+class Location {
+    int locationID = -1;
+    String name;
+
+    Location(String name){
+        this.name = name;
+    }
 }

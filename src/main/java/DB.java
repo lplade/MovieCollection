@@ -49,12 +49,16 @@ public class DB {
                     "CREATE TABLE IF NOT EXISTS Person(" +
                             "PersonID int NOT NULL AUTO_INCREMENT," +
                             "Surname varchar(128)," +
-                            "GivenName varchar(128)" +
+                            "GivenName varchar(128)," +
+                            "TMDBID int," + //https://developers.themoviedb.org/3/people
+                            "IMDBNM int," +  //name entry from undocumented IMDB API
+                            "UNIQUE(TMDBID)," +
+                            "UNIQUE(IMDBNM)" +
                             ")",
                     "CREATE TABLE IF NOT EXISTS Container(" +
                             "ContainerID int NOT NULL AUTO_INCREMENT, " +
                             "Name varchar(128)," +
-                            "UPC decimal(12)," + //UPC-A
+                            "Barcode decimal(13)," + //UPC-A or EAN-13
                             "LocationID int," +
                             "PurchaseDate date," +
                             "BorrowerID int," +
@@ -62,7 +66,8 @@ public class DB {
                             "Sold bool," +
                             "PRIMARY KEY(ContainerID)," +
                             "FOREIGN KEY(LocationID) REFERENCES Location(LocationID)," +
-                            "FOREIGN KEY(BorrowerID) REFERENCES Borrower(BorrowerID)" +
+                            "FOREIGN KEY(BorrowerID) REFERENCES Borrower(BorrowerID)," +
+                            "UNIQUE(Barcode)" + //alternate key
                             ")",
                     "CREATE TABLE IF NOT EXISTS Title(" +
                             "TitleID int NOT NULL AUTO_INCREMENT, " +

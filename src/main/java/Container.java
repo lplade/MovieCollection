@@ -17,8 +17,8 @@ class Container {
     int locationID = -1;
     Date purchaseDate = new Date(0);
     int borrowerID = -1;
-    boolean Sell;
-    boolean Sold ;
+    boolean sell;
+    boolean sold;
 
     //Construct with just name. Other fields are optional, use setters
     Container(String name) {

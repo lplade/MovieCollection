@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 /**
  * Title.java
  *
@@ -21,6 +23,10 @@ class Title {
         this.name = name;
     }
 
+    public String getLanguageStr() {
+        return new String(language);
+
+    }
 }
 
 class Movie extends Title {
@@ -36,7 +42,7 @@ class Movie extends Title {
 class TVShow extends Title {
     //each object here refers to an individual season of a tv show.
     //TODO extend to also store episode information
-    int season;
+    int season; //correspond to season number on thetvdb.com
     String rating; //TV-14 or such
 
     TVShow(String name) {

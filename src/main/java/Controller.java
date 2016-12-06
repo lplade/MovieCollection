@@ -10,7 +10,9 @@ public class Controller {
 
     private static GUI gui;
     private static DB db;
-    Vector<Title> allTitles;
+    Vector<Container> allContainers;
+    Vector<Movie> allMovies;
+    Vector<TVShow> allShows;
 
     public static void main(String[] args) {
         Controller controller = new Controller();
@@ -19,14 +21,25 @@ public class Controller {
 
     private void startApp() {
         db = new DB();
+
+        //generate new tables if they aren't there
         db.createTables();
-        allTitles = db.fetchAllTitles();
+
+        //query the database to create the collections we need
+        allContainers = db.fetchAllContainers();
+        allMovies = db.fetchAllMovies();
+        allShows = db.fetchAllShows();
+
         gui = new GUI(this);
-        gui.setListData(allTitles);
+
+        //send the collections to the model/GUI
+        gui.setContainerListData(allContainers);
+        gui.setMovieListData(allMovies);
+        gui.setTVShowListData(allShows);
     }
 
-    Vector<Title> getAllTitles(){
-        return db.fetchAllTitles();
+    Vector<Container> getAllContainers(){
+        return db.fetchAllContainers();
     }
 
     void addContainerToDatabase(Container container) {
@@ -52,6 +65,7 @@ public class Controller {
         db.updateTVShow(currentID, tvShow);
     }
 
+    //user for either Movies or TV
     void deleteTitle(Title title) {
         db.deleteTitle(title);
     }

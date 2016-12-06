@@ -27,6 +27,19 @@ class Container {
         this.name = name;
     }
 
+    //Construct it all in one shebang
+    Container(String name, int containerID, long barcode, int locationID,
+              Date purchaseDate, int borrowerID, boolean sell, boolean sold){
+        this.containerID = containerID;
+        this.name = name;
+        this.barcode = barcode;
+        this.locationID = locationID;
+        this.purchaseDate = purchaseDate;
+        this.borrowerID = borrowerID;
+        this.sell = sell;
+        this.sold = sold;
+    }
+
 
 
 }

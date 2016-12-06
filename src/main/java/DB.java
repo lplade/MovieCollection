@@ -13,6 +13,7 @@ Location(_LocationID_, Name)   where it is physically stored
 Borrower(_BorrowerID_, Name, Email, Phone)   who we loaned it to
 Person(_PersonID_, Surname, GivenName)   stores biographical data for actors, producers, etc.
  */
+
 public class DB {
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String DB_CONNECTION_URL = "jdbc:mysql://localhost:3306/movie_library";
@@ -55,7 +56,7 @@ public class DB {
                             "Surname varchar(128)," +
                             "GivenName varchar(128)," +
                             "TMDBID int," + //https://developers.themoviedb.org/3/people
-                            "IMDBNM int," +  //name entry from undocumented IMDB API
+                            "IMDBNM int," +  //"name" key from undocumented IMDB API
                             "UNIQUE(TMDBID)," + //these will work as alternate keys
                             "UNIQUE(IMDBNM)" +
                             ")",
@@ -71,7 +72,7 @@ public class DB {
                             "PRIMARY KEY(ContainerID)," +
                             "FOREIGN KEY(LocationID) REFERENCES Location(LocationID)," +
                             "FOREIGN KEY(BorrowerID) REFERENCES Borrower(BorrowerID)," +
-                            "UNIQUE(Barcode)" + //alternate key
+                            "UNIQUE(Barcode)" + //alternate key, but can be null
                             ")",
                     "CREATE TABLE IF NOT EXISTS Title(" +
                             "TitleID int NOT NULL AUTO_INCREMENT, " +
@@ -82,6 +83,7 @@ public class DB {
                             "Language varchar(2), " +
                             "PRIMARY KEY(TitleID)," +
                             "FOREIGN KEY(ContainerID) REFERENCES Container(ContainerID)" +
+                            "ON DELETE CASCADE " +
                             ")",
                     "CREATE TABLE IF NOT EXISTS Movie(" +
                             "TitleID int NOT NULL, " +
@@ -308,12 +310,39 @@ public class DB {
         }
     }
 
-    Vector<Title> fetchAllTitles() {
-        //TODO query
-        return new Vector<>();
-    }
-
     void updateContainer(int currentID, Container container) {
+        try (Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)){
+            String updateStr =
+                    "UPDATE Container " +
+                    "SET Name = ?, " +
+                        "Barcode = ?, " +
+                        "LocationID = ?, " +
+                        "PurchaseDate = ?," +
+                        "BorrowerID = ?," +
+                        "Sell = ?," +
+                        "Sold = ?" +
+                    "WHERE ContainerID = ?";
+            PreparedStatement updatePS = conn.prepareStatement(updateStr);
+
+            updatePS.setString(1, container.name);
+            updatePS.setLong(2, container.barcode);
+            updatePS.setInt(3, container.locationID);
+            updatePS.setDate(4, container.purchaseDate);
+            updatePS.setInt(5, container.borrowerID);
+            updatePS.setBoolean(6, container.sell);
+            updatePS.setBoolean(7, container.sold);
+            updatePS.setInt(8, currentID);
+
+            updatePS.executeUpdate();
+
+            log.info("Updated record " + currentID + " to " + container);
+
+            updatePS.close();
+            conn.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     void updateMovie(int currentID, Movie movie) {
@@ -330,11 +359,61 @@ public class DB {
 
 
     void deleteTitle(Title title) {
-        //only used for accidental entries - should really drop parent Container
-        //TODO drop - be sure to casade to Movie or TVShow
+        //only used for fixing accidental entries - should really drop parent Container
+        //TODO drop - be sure to cascade to Movie or TVShow
     }
 
     void deleteContainer(Container container) {
         //TODO drop
+    }
+
+    Vector<Container> fetchAllContainers() {
+        Vector<Container> allContainers = new Vector<>();
+
+        try ( //try with resources
+                Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD);
+                Statement statement = conn.createStatement()
+                ) {
+            String selectAllSQL = "SELECT * FROM Container";
+            ResultSet rs = statement.executeQuery(selectAllSQL);
+
+            while (rs.next()){
+                int id = rs.getInt("ContainerID");
+                String name = rs.getString("Name");
+                Long barcode = rs.getLong("Barcode");
+                int loc_id = rs.getInt("LocationID");
+                Date pDate = rs.getDate("PurchaseDate");
+                int b_id = rs.getInt("BorrowerID");
+                boolean sell = rs.getBoolean("Sell");
+                boolean sold = rs.getBoolean("Sold");
+                Container container = new Container(name, id, barcode, loc_id, pDate, b_id, sell, sold);
+                allContainers.add(container);
+            }
+
+            rs.close();
+            statement.close();
+            conn.close();
+
+            log.debug("Retrieved all Containers");
+
+            return allContainers; //if there is no data, this will be empty
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null; //we have to return something
+        }
+
+    }
+
+    Vector<Movie> fetchAllMovies() {
+        //TODO query * from Movie, Title
+        log.warn("Not implemented!");
+        return new Vector<>();
+    }
+
+    Vector<TVShow> fetchAllShows() {
+        //TODO query * from TVShow, Title
+        log.warn("Not implemented!");
+        return new Vector<>();
     }
 }

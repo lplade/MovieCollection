@@ -45,11 +45,13 @@ public class DB {
                             "BorrowerID int NOT NULL AUTO_INCREMENT, " +
                             "Name varchar(128), " +
                             "Email varchar(128), " +
-                            "Phone decimal(10)" + //store as 10-digit int
+                            "Phone decimal(10)," + //store as 10-digit int
+                            "PRIMARY KEY (BorrowerID)" +
                             ")",
                     "CREATE TABLE IF NOT EXISTS Location(" +
                             "LocationID int NOT NULL AUTO_INCREMENT," +
-                            "Name varchar(128)" +
+                            "Name varchar(128)," +
+                            "PRIMARY KEY (LocationID)" +
                             ")",
                     "CREATE TABLE IF NOT EXISTS Person(" +
                             "PersonID int NOT NULL AUTO_INCREMENT," +
@@ -57,6 +59,7 @@ public class DB {
                             "GivenName varchar(128)," +
                             "TMDBID int," + //https://developers.themoviedb.org/3/people
                             "IMDBNM int," +  //"name" key from undocumented IMDB API
+                            "PRIMARY KEY (PersonID)," +
                             "UNIQUE(TMDBID)," + //these will work as alternate keys
                             "UNIQUE(IMDBNM)" +
                             ")",

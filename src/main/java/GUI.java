@@ -3,6 +3,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Vector;
 
 /**
@@ -18,6 +20,17 @@ public class GUI extends JFrame {
     private JTable movieTable;
     private JTable tvTable;
     private JToolBar mainJToolBar;
+    private JButton newShelfItemButton;
+    private JButton updateButton;
+    private JButton deleteButton;
+    private JTextField nameTextField;
+    private JTextField barCodeTextField;
+    private JComboBox locationComboBox;
+    private JComboBox pDateYYYYComboBox;
+    private JComboBox pDateMMComboBox;
+    private JComboBox pDateDDComboBox;
+    private JCheckBox sellCheckBox;
+    private JCheckBox soldCheckBox;
 
     //https://docs.oracle.com/javase/tutorial/uiswing/components/tabbedpane.html
     //https://docs.oracle.com/javase/tutorial/uiswing/components/toolbar.html
@@ -56,6 +69,7 @@ public class GUI extends JFrame {
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
+
 
     }
 
@@ -106,6 +120,7 @@ public class GUI extends JFrame {
             }
         });
 
+
     }
 
     public void setContainerListData(Vector<Container> allContainers) {
@@ -117,4 +132,6 @@ public class GUI extends JFrame {
 
     public void setTVShowListData(Vector<TVShow> allShows) {
     }
+
+
 }

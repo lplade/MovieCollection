@@ -73,8 +73,9 @@ public class DB {
                             "Sell bool," +
                             "Sold bool," +
                             "PRIMARY KEY(ContainerID)," +
-                            "FOREIGN KEY(LocationID) REFERENCES Location(LocationID)," +
-                            "FOREIGN KEY(BorrowerID) REFERENCES Borrower(BorrowerID)," +
+                            //TODO figure out foreign keys
+                            //"FOREIGN KEY(LocationID) REFERENCES Location(LocationID)," +
+                            //"FOREIGN KEY(BorrowerID) REFERENCES Borrower(BorrowerID)," +
                             "UNIQUE(Barcode)" + //alternate key, but can be null
                             ")",
                     "CREATE TABLE IF NOT EXISTS Title(" +
@@ -104,7 +105,8 @@ public class DB {
                             "PRIMARY KEY(TitleID)," +
                             "FOREIGN KEY(TitleID) REFERENCES Title(TitleID)" +
                             "ON DELETE CASCADE " +
-                            ")"
+                            ")",
+
             };
             for(int s = 0; s < createTableSQL.length; s++) {
                 statement.execute(createTableSQL[s]);

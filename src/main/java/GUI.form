@@ -128,14 +128,6 @@
               <text value="Update"/>
             </properties>
           </component>
-          <component id="f07cd" class="javax.swing.JButton" binding="deleteButton" default-binding="true">
-            <constraints>
-              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Delete"/>
-            </properties>
-          </component>
           <component id="43073" class="javax.swing.JTextField" binding="nameTextField">
             <constraints>
               <grid row="1" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
@@ -250,6 +242,14 @@
             </constraints>
             <properties>
               <text value="Has been sold"/>
+            </properties>
+          </component>
+          <component id="8b4a9" class="javax.swing.JButton" binding="clearButton" default-binding="true">
+            <constraints>
+              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="Clear"/>
             </properties>
           </component>
         </children>

@@ -5,6 +5,9 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.sql.Date;
 import java.util.Vector;
 
 /**
@@ -31,6 +34,7 @@ public class GUI extends JFrame {
     private JComboBox pDateDDComboBox;
     private JCheckBox sellCheckBox;
     private JCheckBox soldCheckBox;
+    private JButton clearButton;
 
     //https://docs.oracle.com/javase/tutorial/uiswing/components/tabbedpane.html
     //https://docs.oracle.com/javase/tutorial/uiswing/components/toolbar.html
@@ -43,6 +47,8 @@ public class GUI extends JFrame {
     private Controller controller;
 
     private int selectedRecord;
+
+    private Log log = new Log();
 
     GUI(Controller controller) {
         super("Movie Collection");
@@ -71,6 +77,7 @@ public class GUI extends JFrame {
         setVisible(true);
 
 
+
     }
 
     private void addListeners() {
@@ -88,6 +95,7 @@ public class GUI extends JFrame {
                     //grab the contents of the selected record
                     String c_ID = containerTable.getValueAt(containerTable.getSelectedRow(), 1).toString();
                     String name = containerTable.getValueAt(containerTable.getSelectedRow(), 2).toString();
+                    //TODO format as 0-padded
                     String barcode = containerTable.getValueAt(containerTable.getSelectedRow(), 3).toString();
                     //TODO get name field for Location and display it here instead
                     String l_ID = containerTable.getValueAt(containerTable.getSelectedRow(), 4).toString();
@@ -98,7 +106,12 @@ public class GUI extends JFrame {
                     boolean sold = (boolean) containerTable.getValueAt(containerTable.getSelectedRow(), 8);
 
                     //display these SOMEWHERE
-                    //TODO setText() on some fields
+                    nameTextField.setText(name);
+                    barCodeTextField.setText(barcode);
+                    //TODO location field
+                    //TODO parse date into YYYY, MM, and DD -OR- set up date picker
+                    sellCheckBox.setSelected(sell);
+                    soldCheckBox.setSelected(sold);
 
                     //update the index records
                     int id;
@@ -120,17 +133,162 @@ public class GUI extends JFrame {
             }
         });
 
+        newShelfItemButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //get from fields
+                String name = nameTextField.getText();
+                String barcodeStr = barCodeTextField.getText();
+                Long barcode = null;
+                //TODO something with location
+                //TODO something with date
+                int borrowerID; //TODO make a form field!
+                boolean sell = sellCheckBox.isSelected();
+                boolean sold = soldCheckBox.isSelected();
+
+                //validate these
+                if (! testStringNotNull(name,"product name")) return;
+                if (!barcodeStr.isEmpty()) {
+                    if (! testIsPositiveLong(barcodeStr)) {
+                        return;
+                    } else {
+                        //TODO really, should parse to legit barcode
+                        barcode = Long.parseLong(barcodeStr);
+                    }
+                }
+                //assert barcode >= 0;
+                //TODO validate location?
+                //TODO validate date?
+
+                //Date placeholderDate = (Date) new java.util.Date();
+
+                //shouldn't need to validate the checkboxes
+
+
+                //construct a new Container object
+                Container newContainer = new Container(name);
+                //assign attributes if defined
+                //TODO ifdefined checks
+                if(barcode != null) newContainer.barcode = barcode;
+                //newContainer.locationID
+                //newContainer.purchaseDate = placeholderDate;
+                //newContainer.borrowerID = borrowerID;
+                newContainer.sell = sell;
+                newContainer.sold = sold;
+
+                //update the Container in the database
+                controller.addContainerToDatabase(newContainer);
+
+                //clear the JTable selection
+                containerTable.clearSelection();
+
+                //clear the input JTextFields
+                nameTextField.setText("");
+                barCodeTextField.setText("");
+                sellCheckBox.setSelected(false);
+                soldCheckBox.setSelected(false);
+
+                //refresh to reflect the changes
+                Vector<Container> allContainers = controller.getAllContainers();
+                setContainerListData(allContainers);
+
+            }
+        });
+
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO implement
+            }
+        });
+
+        clearButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO clear the text fields
+                //TODO set selectedRecord back to -1
+                //TODO unselect JTable if needed
+                //TODO re-enable Add button if needed
+                //TODO disable the Update button
+                //TODO disable the Delete button
+            }
+        });
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(
+                        GUI.this,
+                        "Are you sure you want to exit?",
+                        "Exit?",
+                        JOptionPane.OK_CANCEL_OPTION)) {
+                    //reset the database
+                    //controller.resetAllData();
+                    //And quit.
+                    System.exit(0);
+                }
+                //super.windowClosing(e);
+            }
+        });
 
     }
 
-    public void setContainerListData(Vector<Container> allContainers) {
+    void setContainerListData(Vector<Container> allContainers) {
         containerTM.updateData(allContainers);
     }
 
-    public void setMovieListData(Vector<Movie> allMovies) {
+    void setMovieListData(Vector<Movie> allMovies) {
+        //TODO set up
     }
 
-    public void setTVShowListData(Vector<TVShow> allShows) {
+    void setTVShowListData(Vector<TVShow> allShows) {
+        //TODO set up
+    }
+
+
+    //helper methods
+
+    //tests if a string is empty
+    //displays an error dialog if it is
+    private boolean testStringNotNull(String inString, String fieldName) {
+        // inString is the string to test
+        // fieldName is the word displayed to the user in the error
+        if ( inString == null || inString.length() == 0) {
+            String errMsg = "Please enter a " + fieldName + " for this solver";
+            JOptionPane.showMessageDialog(
+                    GUI.this,
+                    errMsg
+            );
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    //tests if a string can be a valid long
+    //displays error dialog if it is not
+    //TODO use checksum method in object itself
+    private boolean testIsPositiveLong(String str) {
+        try {
+            Long lng = Long.parseLong(str);
+            if (lng <= 0) {
+                String errMsg = "Barcode cannot be negative number";
+                JOptionPane.showMessageDialog(
+                        GUI.this,
+                        errMsg
+                );
+                return false;
+            } else {
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            String errMsg = "Barcode is not a valid number";
+            JOptionPane.showMessageDialog(
+                    GUI.this,
+                    errMsg
+            );
+            return false;
+        }
     }
 
 

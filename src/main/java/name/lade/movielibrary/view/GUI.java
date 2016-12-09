@@ -1,4 +1,10 @@
-import javax.naming.ldap.Control;
+package name.lade.movielibrary.view;
+
+import name.lade.movielibrary.controller.Controller;
+import model.*;
+import name.lade.movielibrary.model.*;
+import name.lade.movielibrary.model.Container;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -7,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.sql.Date;
 import java.util.Vector;
 
 /**
@@ -51,7 +56,7 @@ public class GUI extends JFrame {
     private Log log = new Log();
 
     GUI(Controller controller) {
-        super("Movie Collection");
+        super("model.Movie Collection");
         setContentPane(rootPanel);
         setPreferredSize(new Dimension(800, 600));
 
@@ -166,7 +171,7 @@ public class GUI extends JFrame {
 
 
                 //construct a new Container object
-                Container newContainer = new Container(name);
+                name.lade.movielibrary.model.Container newContainer = new Container(name);
                 //assign attributes if defined
                 //TODO ifdefined checks
                 if(barcode != null) newContainer.barcode = barcode;

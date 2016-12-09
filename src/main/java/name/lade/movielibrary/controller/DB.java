@@ -1,3 +1,10 @@
+package name.lade.movielibrary.controller;
+
+import model.*;
+import name.lade.movielibrary.model.Borrower;
+import name.lade.movielibrary.model.Container;
+import name.lade.movielibrary.model.Location;
+
 import java.sql.*;
 import java.util.Vector;
 
@@ -6,12 +13,12 @@ Handles all database access methods
 
 Database structure:
 Container(_ContainerID_, Name, UPC, LocationID, PurchaseDate, BorrowerID, sell, sold)   physical package
-Title(_TitleID_, Name, Format, ContainerID, Genre, Language)   common to media titles
-Movie(_TitleID_, Year, Rating, Cut)   subtype of movies
-TVShow(_TitleID_, Season, Rating)   subtype of tv shows and such
+model.Title(_TitleID_, Name, Format, ContainerID, Genre, Language)   common to media titles
+model.Movie(_TitleID_, Year, Rating, Cut)   subtype of movies
+model.TVShow(_TitleID_, Season, Rating)   subtype of tv shows and such
 Location(_LocationID_, Name)   where it is physically stored
 Borrower(_BorrowerID_, Name, Email, Phone)   who we loaned it to
-Person(_PersonID_, Surname, GivenName)   stores biographical data for actors, producers, etc.
+model.Person(_PersonID_, Surname, GivenName)   stores biographical data for actors, producers, etc.
  */
 
 public class DB {
@@ -186,7 +193,7 @@ public class DB {
             //actually put it in the database
             insertPS.execute();
 
-            log.info("Added Person for " + person);
+            log.info("Added model.Person for " + person);
 
             insertPS.close();
             conn.close();
@@ -225,11 +232,11 @@ public class DB {
         }
     }
 
-    //Right now we're assuming all titles are either Movies or TVShows, so no method to add Title directly
+    //Right now we're assuming all titles are either Movies or TVShows, so no method to add model.Title directly
 
     void addMovie(Movie movie) {
         try (Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)) {
-            //first we store the Title
+            //first we store the model.Title
             String prepStatStr = "INSERT INTO Title VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement insertPS = conn.prepareStatement(prepStatStr, Statement.RETURN_GENERATED_KEYS);
             insertPS.setInt(1, 0); //auto-increment
@@ -240,7 +247,7 @@ public class DB {
             insertPS.setString(6, movie.getLanguageStr());
 
             insertPS.executeUpdate();
-            log.info("Added Title for " + movie + "...");
+            log.info("Added model.Title for " + movie + "...");
 
             //get the generated primary key
             // http://stackoverflow.com/questions/5513180/java-preparedstatement-retrieving-last-inserted-id
@@ -248,7 +255,7 @@ public class DB {
             if(rs.next()) {
                 int last_inserted_id = rs.getInt(1);
 
-                //now we can store the Movie elements
+                //now we can store the model.Movie elements
                 prepStatStr = "INSERT INTO Movie VALUES (?, ?, ?, ?)";
                 insertPS = conn.prepareStatement(prepStatStr);
                 insertPS.setInt(1, last_inserted_id);
@@ -257,11 +264,11 @@ public class DB {
                 insertPS.setString(4, movie.cut);
 
                 insertPS.execute();
-                log.info("Added Movie for " + movie);
+                log.info("Added model.Movie for " + movie);
 
             } else {
                 //something is wrong if execute failed to return something
-                log.error("Added Title, but cannot add Movie!");
+                log.error("Added model.Title, but cannot add model.Movie!");
                 throw new SQLSyntaxErrorException();
             }
 
@@ -275,7 +282,7 @@ public class DB {
 
     void addTVShow(TVShow tvshow) {
         try (Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)) {
-            //first we store the Title
+            //first we store the model.Title
             String prepStatStr = "INSERT INTO Title VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement insertPS = conn.prepareStatement(prepStatStr, Statement.RETURN_GENERATED_KEYS);
             insertPS.setInt(1, 0); //auto-increment
@@ -359,13 +366,13 @@ public class DB {
     }
 
     void delete(Title title) {
-        //TODO drop - be sure to cascade to Movie or TVShow
+        //TODO drop - be sure to cascade to model.Movie or model.TVShow
     }
 
 
     void deleteTitle(Title title) {
         //only used for fixing accidental entries - should really drop parent Container
-        //TODO drop - be sure to cascade to Movie or TVShow
+        //TODO drop - be sure to cascade to model.Movie or model.TVShow
     }
 
     void deleteContainer(Container container) {
@@ -411,13 +418,13 @@ public class DB {
     }
 
     Vector<Movie> fetchAllMovies() {
-        //TODO query * from Movie, Title
+        //TODO query * from model.Movie, model.Title
         log.warn("Not implemented!");
         return new Vector<>();
     }
 
     Vector<TVShow> fetchAllShows() {
-        //TODO query * from TVShow, Title
+        //TODO query * from model.TVShow, model.Title
         log.warn("Not implemented!");
         return new Vector<>();
     }

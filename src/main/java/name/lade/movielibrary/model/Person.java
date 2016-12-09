@@ -1,3 +1,5 @@
+package name.lade.movielibrary.model;
+
 /**
  * Person.java
  *

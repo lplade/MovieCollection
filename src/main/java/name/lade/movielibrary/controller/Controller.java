@@ -1,3 +1,10 @@
+package name.lade.movielibrary.controller;
+
+import name.lade.movielibrary.model.Container;
+import model.Movie;
+import model.TVShow;
+import model.Title;
+
 import java.util.Vector;
 
 /**
@@ -76,6 +83,6 @@ public class Controller {
 
     //TODO Borrower methods
 
-    //TODO Person methods
+    //TODO model.Person methods
 
 }

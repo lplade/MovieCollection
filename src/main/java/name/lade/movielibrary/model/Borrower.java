@@ -1,9 +1,11 @@
+package name.lade.movielibrary.model;
+
 /**
  * Borrower.java
  *
  * This class stores information about people to whom media containers have been loaned
  */
-class Borrower {
+public class Borrower {
     int borrowerID;
     String name;
     String email;

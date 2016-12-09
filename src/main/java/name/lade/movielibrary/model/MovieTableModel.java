@@ -1,16 +1,18 @@
+package name.lade.movielibrary.model;
+
 import javax.swing.table.AbstractTableModel;
 import java.util.Vector;
 
 /**
- * TVTableModel.java
+ * MovieTableModel.java
  *
- * This models TVShow objects for JTable display
+ * This models Movie objects for JTable display
  */
-public class TVTableModel extends AbstractTableModel {
+public class MovieTableModel extends AbstractTableModel {
 
     private Log log = new Log();
 
-    private Vector<TVShow> allShows;
+    private Vector<Movie> allMovies;
 
     //Column names, displayed as table headers in the JTable
 
@@ -21,23 +23,24 @@ public class TVTableModel extends AbstractTableModel {
             "In Box", //TODO hide this?
             "Genre",
             "Lang",
-            "Season",
-            "Rating"
+            "Year",
+            "Rating",
+            "Cut"
     };
 
-    TVTableModel(Vector<TVShow> shows) {
-        this.allShows = shows;
+    MovieTableModel(Vector<Movie> movies) {
+        this.allMovies = movies;
     }
 
-    void updateData(Vector<TVShow> updatedShows) {
+    void updateData(Vector<Movie> updatedMovies) {
         //completely replace data in table fresh DB data
-        this.allShows = updatedShows;
+        this.allMovies = updatedMovies;
         fireTableDataChanged();
     }
 
     @Override
     public int getRowCount() {
-        return allShows.size();
+        return allMovies.size();
     }
 
     @Override
@@ -49,32 +52,32 @@ public class TVTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
             case 0: // ID
-                return allShows.get(rowIndex).titleID;
+                return allMovies.get(rowIndex).titleID;
             case 1: // Title
-                return allShows.get(rowIndex).name;
+                return allMovies.get(rowIndex).name;
             case 2: // Format
-                return allShows.get(rowIndex).format;
+                return allMovies.get(rowIndex).format;
             case 3: // ContainerID
                 //TODO query Container and return name field
-                return allShows.get(rowIndex).containerID;
+                return allMovies.get(rowIndex).containerID;
             case 4: // Genre
-                return allShows.get(rowIndex).genre;
+                return allMovies.get(rowIndex).genre;
             case 5: // Language
                 //TODO some kind of lookup table for long string?
                 //this returns a char[2]
-                return allShows.get(rowIndex).language;
-            case 6: // Season
-                return allShows.get(rowIndex).season;
+                return allMovies.get(rowIndex).language;
+            case 6: // Year
+                return allMovies.get(rowIndex).year;
             case 7: // Rating
-                return allShows.get(rowIndex).rating;
+                return allMovies.get(rowIndex).cut;
             default: //should never get here
                 log.warn("Trying to access OOB column in Movie");
                 return null;
         }
     }
 
-    TVShow getShowAtRow(int rowIndex){
-        return allShows.get(rowIndex);
+    Movie getMovieAtRow(int rowIndex){
+        return allMovies.get(rowIndex);
     }
 
     @Override

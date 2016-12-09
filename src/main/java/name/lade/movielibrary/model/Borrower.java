@@ -6,10 +6,10 @@ package name.lade.movielibrary.model;
  * This class stores information about people to whom media containers have been loaned
  */
 public class Borrower {
-    int borrowerID;
-    String name;
-    String email;
-    int phone;
+    public int borrowerID;
+    public String name;
+    public String email;
+    public int phone;
 
     //Construct with just name. Other fields are optional, use setters
     Borrower(String name) {

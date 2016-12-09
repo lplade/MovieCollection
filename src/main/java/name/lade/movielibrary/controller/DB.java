@@ -1,9 +1,7 @@
 package name.lade.movielibrary.controller;
 
-import model.*;
-import name.lade.movielibrary.model.Borrower;
-import name.lade.movielibrary.model.Container;
-import name.lade.movielibrary.model.Location;
+import name.lade.movielibrary.model.*;
+import name.lade.Log;
 
 import java.sql.*;
 import java.util.Vector;
@@ -21,7 +19,7 @@ Borrower(_BorrowerID_, Name, Email, Phone)   who we loaned it to
 model.Person(_PersonID_, Surname, GivenName)   stores biographical data for actors, producers, etc.
  */
 
-public class DB {
+class DB {
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     private static final String DB_CONNECTION_URL = "jdbc:mysql://localhost:3306/movie_library";
     private static final String USER = "lade";

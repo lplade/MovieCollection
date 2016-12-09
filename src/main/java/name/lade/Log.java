@@ -1,3 +1,5 @@
+package name.lade;
+
 /**
  * Log.java
  *
@@ -18,31 +20,31 @@ public class Log {
     private static final int LOG_LEVEL = 0;
 
 
-    void debug(String message) {
+    public void debug(String message) {
         if (LOG_LEVEL >= 0) {
             System.out.println("DEBUG: " + message);
         }
     }
 
-    void info(String message) {
+    public void info(String message) {
         if (LOG_LEVEL >= 1) {
             System.out.println("INFO: " + message);
         }
     }
 
-    void warn(String message) {
+    public void warn(String message) {
         if (LOG_LEVEL >= 2) {
             System.out.println("WARN: " + message);
         }
     }
 
-    void error(String message) {
+    public void error(String message) {
         if (LOG_LEVEL >= 3) {
             System.err.println("ERROR: " + message);
         }
     }
 
-    void fatal(String message) {
+    public void fatal(String message) {
         if (LOG_LEVEL >= 4) {
             System.err.println("FATAL: " + message);
         }

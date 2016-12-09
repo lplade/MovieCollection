@@ -1,5 +1,7 @@
 package name.lade.movielibrary.model;
 
+import name.lade.Log;
+
 import javax.swing.table.AbstractTableModel;
 import java.util.Vector;
 
@@ -27,7 +29,7 @@ public class TVTableModel extends AbstractTableModel {
             "Rating"
     };
 
-    TVTableModel(Vector<TVShow> shows) {
+    public TVTableModel(Vector<TVShow> shows) {
         this.allShows = shows;
     }
 

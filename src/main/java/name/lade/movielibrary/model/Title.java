@@ -10,14 +10,14 @@ package name.lade.movielibrary.model;
  *
  * There are subclasses which contain additional fields that apply to Movies and TVShows
  */
-class Title {
+public class Title {
     //Fields common to all media titles
-    int titleID = -1;
-    String name;
-    String format; //Blu-ray, DVD, digital
-    int containerID;
-    String genre; //comedy, horror, scifi
-    char[] language = new char[2]; // ISO code: en, de, jp
+    public int titleID = -1;
+    public String name;
+    public String format; //Blu-ray, DVD, digital
+    public int containerID;
+    public String genre; //comedy, horror, scifi
+    public char[] language = new char[2]; // ISO code: en, de, jp
 
     Title(String name) {
         this.name = name;
@@ -29,23 +29,3 @@ class Title {
     }
 }
 
-class Movie extends Title {
-    int year;
-    String rating; //MPAA rating or equiv.
-    String cut; //director's cut, theatrical release
-
-    Movie(String name) {
-        super(name);
-    }
-}
-
-class TVShow extends Title {
-    //each object here refers to an individual season of a tv show.
-    //TODO extend to also store episode information
-    int season; //correspond to season number on thetvdb.com
-    String rating; //TV-14 or such
-
-    TVShow(String name) {
-        super(name);
-    }
-}

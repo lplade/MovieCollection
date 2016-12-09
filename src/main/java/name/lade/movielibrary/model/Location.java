@@ -8,7 +8,7 @@ package name.lade.movielibrary.model;
  */
 public class Location {
     int locationID = -1;
-    String name;
+    public String name;
 
     Location(String name){
         this.name = name;

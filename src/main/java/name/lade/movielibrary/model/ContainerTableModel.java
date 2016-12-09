@@ -1,5 +1,7 @@
 package name.lade.movielibrary.model;
 
+import name.lade.Log;
+
 import javax.swing.table.AbstractTableModel;
 import java.util.Vector;
 
@@ -27,11 +29,11 @@ public class ContainerTableModel extends AbstractTableModel {
             "Sold"
     };
 
-    ContainerTableModel(Vector<Container> containers) {
+    public ContainerTableModel(Vector<Container> containers) {
         this.allContainers = containers;
     }
 
-    void updateData(Vector<Container> updatedContainers) {
+    public void updateData(Vector<Container> updatedContainers) {
         //completely replace data in table with fresh data from DB
         this.allContainers = updatedContainers;
         fireTableDataChanged();

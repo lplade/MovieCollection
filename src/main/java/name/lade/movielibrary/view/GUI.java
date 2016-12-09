@@ -1,7 +1,7 @@
 package name.lade.movielibrary.view;
 
+import name.lade.Log;
 import name.lade.movielibrary.controller.Controller;
-import model.*;
 import name.lade.movielibrary.model.*;
 import name.lade.movielibrary.model.Container;
 
@@ -55,7 +55,7 @@ public class GUI extends JFrame {
 
     private Log log = new Log();
 
-    GUI(Controller controller) {
+    public GUI(Controller controller) {
         super("model.Movie Collection");
         setContentPane(rootPanel);
         setPreferredSize(new Dimension(800, 600));
@@ -238,15 +238,15 @@ public class GUI extends JFrame {
 
     }
 
-    void setContainerListData(Vector<Container> allContainers) {
+    public void setContainerListData(Vector<Container> allContainers) {
         containerTM.updateData(allContainers);
     }
 
-    void setMovieListData(Vector<Movie> allMovies) {
+    public void setMovieListData(Vector<Movie> allMovies) {
         //TODO set up
     }
 
-    void setTVShowListData(Vector<TVShow> allShows) {
+    public void setTVShowListData(Vector<TVShow> allShows) {
         //TODO set up
     }
 

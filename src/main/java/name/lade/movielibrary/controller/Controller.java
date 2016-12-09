@@ -1,9 +1,8 @@
 package name.lade.movielibrary.controller;
 
-import name.lade.movielibrary.model.Container;
-import model.Movie;
-import model.TVShow;
-import model.Title;
+import name.lade.movielibrary.model.*;
+import name.lade.movielibrary.view.*;
+
 
 import java.util.Vector;
 
@@ -17,9 +16,9 @@ public class Controller {
 
     private static GUI gui;
     private static DB db;
-    Vector<Container> allContainers;
-    Vector<Movie> allMovies;
-    Vector<TVShow> allShows;
+    public Vector<Container> allContainers;
+    public Vector<Movie> allMovies;
+    public Vector<TVShow> allShows;
 
     public static void main(String[] args) {
         Controller controller = new Controller();
@@ -45,11 +44,11 @@ public class Controller {
         gui.setTVShowListData(allShows);
     }
 
-    Vector<Container> getAllContainers(){
+    public Vector<Container> getAllContainers(){
         return db.fetchAllContainers();
     }
 
-    void addContainerToDatabase(Container container) {
+    public void addContainerToDatabase(Container container) {
         db.addContainer(container);
     }
 

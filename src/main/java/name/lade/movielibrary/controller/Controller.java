@@ -79,12 +79,12 @@ public class Controller {
         db.deleteTitle(title);
     }
 
-    void deleteContainer(Container container) {
-        db.deleteContainer(container);
+    void deleteContainer(int containerID) {
+        db.deleteContainer(containerID);
     }
 
     //TODO Borrower methods
 
-    //TODO model.Person methods
+    //TODO Person methods
 
 }

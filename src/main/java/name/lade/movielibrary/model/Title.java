@@ -23,6 +23,16 @@ public class Title {
         this.name = name;
     }
 
+    //full constructor
+    Title(String name, int titleID, String format, int containerID,
+          String genre, char[] language){
+        this.name = name;
+        this.titleID = titleID;
+        this.format = format;
+        this.genre = genre;
+        this.language = language;
+    }
+
     public String getLanguageStr() {
         return new String(language);
 

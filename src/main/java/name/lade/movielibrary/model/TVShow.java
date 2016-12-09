@@ -6,7 +6,14 @@ public class TVShow extends Title {
     public int season; //correspond to season number on thetvdb.com
     public String rating; //TV-14 or such
 
-    TVShow(String name) {
+    public TVShow(String name) {
         super(name);
+    }
+
+    public TVShow(String name, int titleID, String format, int containerID,
+           String genre, char[] language, int season, String rating ) {
+        super(name, titleID, format, containerID, genre, language);
+        this.season = season;
+        this.rating = rating;
     }
 }

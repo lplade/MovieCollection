@@ -442,18 +442,27 @@ class DB {
         }
     }
 
-    void delete(Title title) {
-        //TODO drop - be sure to cascade to model.Movie or model.TVShow
-    }
-
-
     void deleteTitle(Title title) {
         //only used for fixing accidental entries - should really drop parent Container
         //TODO drop - be sure to cascade to model.Movie or model.TVShow
     }
 
-    void deleteContainer(Container container) {
-        //TODO drop
+    void deleteContainer(int containerID) {
+        //TODO check if that is a legit index?
+        try (Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)) {
+            String deleteStr = "DELETE FROM Container WHERE ContainerID = ?";
+            PreparedStatement deletePS = conn.prepareStatement(deleteStr);
+
+            deletePS.setInt(1, containerID);
+            deletePS.executeUpdate();
+            log.info("Deleted Container " + containerID);
+
+            deletePS.close();
+            conn.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     Vector<Container> fetchAllContainers() {
@@ -494,19 +503,101 @@ class DB {
     }
 
     Vector<Movie> fetchAllMovies() {
-        //TODO query * from model.Movie, model.Title
-        log.warn("Not implemented!");
-        return new Vector<>();
+        Vector<Movie> allMovies = new Vector<>();
+
+        try (
+                Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD);
+                Statement statement = conn.createStatement()
+                ) {
+            String selectAllSQL =
+                    "SELECT * " +
+                    "FROM Title " +
+                    "JOIN Movie " +
+                    "ON Title.TitleID = Movie.TitleID";
+            ResultSet rs = statement.executeQuery(selectAllSQL);
+
+            while (rs.next()){
+                int id = rs.getInt("TitleID");
+                String name = rs.getString("Name");
+                String format = rs.getString("Format");
+                int c_ID = rs.getInt("ContainerID");
+                String genre = rs.getString("Genre");
+                String langStr = rs.getString("Language");
+                char[] lang = langStr.toCharArray();
+                int year = rs.getInt("Year");
+                String rating = rs.getString("Rating");
+                String cut = rs.getString("Cut");
+                Movie movie = new Movie(
+                        name, id, format, c_ID, genre,
+                        lang, year, rating, cut
+                );
+                allMovies.add(movie);
+            }
+
+            rs.close();
+            statement.close();
+            conn.close();
+
+            log.debug("Retrieved all Movies");
+
+            return allMovies; //if there is no data, this should be empty
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null; //return something
+        }
+
     }
 
     Vector<TVShow> fetchAllShows() {
-        //TODO query * from model.TVShow, model.Title
-        log.warn("Not implemented!");
-        return new Vector<>();
+        Vector<TVShow> allShows = new Vector<>();
+
+        try (
+                Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD);
+                Statement statement = conn.createStatement()
+        ) {
+            String selectAllSQL =
+                    "SELECT * " +
+                            "FROM Title " +
+                            "JOIN TVShow " +
+                            "ON Title.TitleID = TVShow.TitleID";
+            ResultSet rs = statement.executeQuery(selectAllSQL);
+
+            while (rs.next()){
+                int id = rs.getInt("TitleID");
+                String name = rs.getString("Name");
+                String format = rs.getString("Format");
+                int c_ID = rs.getInt("ContainerID");
+                String genre = rs.getString("Genre");
+                String langStr = rs.getString("Language");
+                char[] lang = langStr.toCharArray();
+                int season = rs.getInt("Season");
+                String rating = rs.getString("Rating");
+
+                TVShow tvShow = new TVShow(
+                        name, id, format, c_ID, genre,
+                        lang, season, rating
+                );
+                allShows.add(tvShow);
+            }
+
+            rs.close();
+            statement.close();
+            conn.close();
+
+            log.debug("Retrieved all TVShows");
+
+            return allShows; //if there is no data, this should be empty
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null; //return something
+        }
+
     }
 
     void initBorrower() {
-        if (isEmpty("Borrower")) {
+        if (isEmptyTable("Borrower")) {
             Borrower brw = new Borrower("self");
             addBorrower(brw);
             log.debug("Created an initial entry in Borrower");
@@ -516,7 +607,7 @@ class DB {
     }
 
     void initLocation() {
-        if (isEmpty("Location")) {
+        if (isEmptyTable("Location")) {
             Location loc = new Location("main shelf");
             addLocation(loc);
             log.debug("Created an intial entry in Location");
@@ -525,7 +616,7 @@ class DB {
         }
     }
 
-    private boolean isEmpty(String table) {
+    private boolean isEmptyTable(String table) {
         //Use this to test if there is any data in a given table
         try (
                 Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD);

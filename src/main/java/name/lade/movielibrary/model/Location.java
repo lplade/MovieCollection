@@ -10,7 +10,7 @@ public class Location {
     int locationID = -1;
     public String name;
 
-    Location(String name){
+    public Location(String name){
         this.name = name;
     }
 }

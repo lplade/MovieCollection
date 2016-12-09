@@ -3,7 +3,6 @@ package name.lade.movielibrary.controller;
 import name.lade.movielibrary.model.*;
 import name.lade.movielibrary.view.*;
 
-
 import java.util.Vector;
 
 /**
@@ -12,6 +11,7 @@ import java.util.Vector;
  * This is the main controller class for the application
  *
  */
+
 public class Controller {
 
     private static GUI gui;
@@ -30,6 +30,9 @@ public class Controller {
 
         //generate new tables if they aren't there
         db.createTables();
+        //create some initial values needed for table dependencies
+        db.initBorrower();
+        db.initLocation();
 
         //query the database to create the collections we need
         allContainers = db.fetchAllContainers();

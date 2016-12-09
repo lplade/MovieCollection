@@ -79,8 +79,8 @@ class DB {
                             "Sold bool," +
                             "PRIMARY KEY(ContainerID)," +
                             //TODO figure out foreign keys
-                            //"FOREIGN KEY(LocationID) REFERENCES Location(LocationID)," +
-                            //"FOREIGN KEY(BorrowerID) REFERENCES Borrower(BorrowerID)," +
+                            "FOREIGN KEY(LocationID) REFERENCES Location(LocationID)," +
+                            "FOREIGN KEY(BorrowerID) REFERENCES Borrower(BorrowerID)," +
                             "UNIQUE(Barcode)" + //alternate key, but can be null
                             ")",
                     "CREATE TABLE IF NOT EXISTS Title(" +
@@ -116,8 +116,7 @@ class DB {
             for(int s = 0; s < createTableSQL.length; s++) {
                 statement.execute(createTableSQL[s]);
             }
-            log.info("Created cube solution table");
-
+            log.info("Created DB tables");
 
             statement.close();
             conn.close();
@@ -139,7 +138,7 @@ class DB {
             insertPS.setString(3, borrower.email);
             insertPS.setInt(4, borrower.phone);
 
-            //actually put it in the database
+            //put it in the database
             insertPS.execute();
 
             log.info("Added Borrower for " + borrower);
@@ -230,11 +229,11 @@ class DB {
         }
     }
 
-    //Right now we're assuming all titles are either Movies or TVShows, so no method to add model.Title directly
+    //Right now we're assuming all titles are either Movies or TVShows, so no method to add Title directly
 
     void addMovie(Movie movie) {
         try (Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)) {
-            //first we store the model.Title
+            //first we store the Title
             String prepStatStr = "INSERT INTO Title VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement insertPS = conn.prepareStatement(prepStatStr, Statement.RETURN_GENERATED_KEYS);
             insertPS.setInt(1, 0); //auto-increment
@@ -245,7 +244,7 @@ class DB {
             insertPS.setString(6, movie.getLanguageStr());
 
             insertPS.executeUpdate();
-            log.info("Added model.Title for " + movie + "...");
+            log.info("Added Title for " + movie + "...");
 
             //get the generated primary key
             // http://stackoverflow.com/questions/5513180/java-preparedstatement-retrieving-last-inserted-id
@@ -253,7 +252,7 @@ class DB {
             if(rs.next()) {
                 int last_inserted_id = rs.getInt(1);
 
-                //now we can store the model.Movie elements
+                //now we can store the Movie elements
                 prepStatStr = "INSERT INTO Movie VALUES (?, ?, ?, ?)";
                 insertPS = conn.prepareStatement(prepStatStr);
                 insertPS.setInt(1, last_inserted_id);
@@ -262,11 +261,11 @@ class DB {
                 insertPS.setString(4, movie.cut);
 
                 insertPS.execute();
-                log.info("Added model.Movie for " + movie);
+                log.info("Added Movie for " + movie);
 
             } else {
                 //something is wrong if execute failed to return something
-                log.error("Added model.Title, but cannot add model.Movie!");
+                log.error("Added Title, but cannot add Movie!");
                 throw new SQLSyntaxErrorException();
             }
 
@@ -280,7 +279,7 @@ class DB {
 
     void addTVShow(TVShow tvshow) {
         try (Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)) {
-            //first we store the model.Title
+            //first we store the Title
             String prepStatStr = "INSERT INTO Title VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement insertPS = conn.prepareStatement(prepStatStr, Statement.RETURN_GENERATED_KEYS);
             insertPS.setInt(1, 0); //auto-increment
@@ -356,11 +355,91 @@ class DB {
     }
 
     void updateMovie(int currentID, Movie movie) {
-        //TODO update
+        try (Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)){
+            String updateTitleStr =
+                    "UPDATE Title " +
+                    "SET Name = ?, " +
+                        "Format = ?, " +
+                        "ContainerID = ?, " +
+                        "Genre = ?, " +
+                        "Language = ? " +
+                    "WHERE TitleID =?";
+            PreparedStatement updatePS = conn.prepareStatement(updateTitleStr);
+
+            updatePS.setString(1, movie.name);
+            updatePS.setString(2, movie.format);
+            updatePS.setInt(3, movie.containerID);
+            updatePS.setString(4, movie.genre);
+            updatePS.setString(5, movie.getLanguageStr());
+            updatePS.setInt(6, currentID);
+
+            updatePS.executeUpdate();
+            log.info("Updated Title record " + currentID + " to " + movie);
+
+            String updateMovieStr =
+                    "UPDATE Movie " +
+                    "SET Year = ?, " +
+                        "Rating = ?, " +
+                        "Cut = ?" +
+                    "WHERE TitleID = ?";
+            updatePS = conn.prepareStatement(updateMovieStr);
+            updatePS.setInt(1, movie.year);
+            updatePS.setString(2, movie.rating);
+            updatePS.setString(3, movie.cut);
+            updatePS.setInt(4, currentID);
+
+            updatePS.executeUpdate();
+            log.info("Updated Movie record " + currentID + " to " + movie);
+
+            updatePS.close();
+            conn.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     void updateTVShow(int currentID, TVShow tvShow) {
-        //TODO update
+        try (Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)){
+            String updateTitleStr =
+                    "UPDATE Title " +
+                    "SET Name = ?, " +
+                        "Format = ?, " +
+                        "ContainerID = ?, " +
+                        "Genre = ?, " +
+                        "Language = ? " +
+                    "WHERE TitleID =?";
+            PreparedStatement updatePS = conn.prepareStatement(updateTitleStr);
+
+            updatePS.setString(1, tvShow.name);
+            updatePS.setString(2, tvShow.format);
+            updatePS.setInt(3, tvShow.containerID);
+            updatePS.setString(4, tvShow.genre);
+            updatePS.setString(5, tvShow.getLanguageStr());
+            updatePS.setInt(6, currentID);
+
+            updatePS.executeUpdate();
+            log.info("Updated Title record " + currentID + " to " + tvShow);
+
+            String updateTVStr =
+                    "UPDATE TVShow " +
+                    "SET Season = ?, " +
+                        "Rating = ? " +
+                    "WHERE TitleID = ?";
+            updatePS = conn.prepareStatement(updateTVStr);
+            updatePS.setInt(1, tvShow.season);
+            updatePS.setString(2, tvShow.rating);
+            updatePS.setInt(3, currentID);
+
+            updatePS.executeUpdate();
+            log.info("Updated TVShow record " + currentID + " to " + tvShow);
+
+            updatePS.close();
+            conn.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     void delete(Title title) {
@@ -412,7 +491,6 @@ class DB {
             e.printStackTrace();
             return null; //we have to return something
         }
-
     }
 
     Vector<Movie> fetchAllMovies() {
@@ -426,4 +504,46 @@ class DB {
         log.warn("Not implemented!");
         return new Vector<>();
     }
+
+    void initBorrower() {
+        if (isEmpty("Borrower")) {
+            Borrower brw = new Borrower("self");
+            addBorrower(brw);
+            log.debug("Created an initial entry in Borrower");
+        } else {
+            log.debug("Table Borrower is not empty, not creating initial entry");
+        }
+    }
+
+    void initLocation() {
+        if (isEmpty("Location")) {
+            Location loc = new Location("main shelf");
+            addLocation(loc);
+            log.debug("Created an intial entry in Location");
+        } else {
+            log.debug("Table Location is not empty, not creating initial entry");
+        }
+    }
+
+    private boolean isEmpty(String table) {
+        //Use this to test if there is any data in a given table
+        try (
+                Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD);
+                Statement statement = conn.createStatement()
+        ) {
+            String selectAllSQL = "SELECT * FROM " + table;
+            ResultSet rs = statement.executeQuery(selectAllSQL);
+
+            //true if empty, false if there are any results
+            return !rs.next();
+
+        } catch (SQLException e) {
+            log.error("Exception querying table " + table);
+            e.printStackTrace();
+            System.exit(-1);
+            return true; //must return something
+        }
+    }
+
+
 }

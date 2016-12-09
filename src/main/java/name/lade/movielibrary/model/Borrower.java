@@ -12,7 +12,7 @@ public class Borrower {
     public int phone;
 
     //Construct with just name. Other fields are optional, use setters
-    Borrower(String name) {
+    public Borrower(String name) {
         this.name = name;
     }
 }

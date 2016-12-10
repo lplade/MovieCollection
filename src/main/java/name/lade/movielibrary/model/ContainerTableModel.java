@@ -66,7 +66,7 @@ public class ContainerTableModel extends AbstractTableModel {
                 //TODO format string nicely
                 return allContainers.get(rowIndex).purchaseDate;
             case 5: // Borrower
-                //TODO query Borrower table and return GivenName Surname
+                //TODO query Borrower table and return name
                 return allContainers.get(rowIndex).borrowerID;
             case 6: // Sell flag
                 return allContainers.get(rowIndex).sell;
@@ -78,8 +78,8 @@ public class ContainerTableModel extends AbstractTableModel {
         }
     }
 
-    Container getContainerAtRow(int rowIndex){
-        return allContainers.get(rowIndex);
+    public Container getRow(int row) {
+        return allContainers.get(row);
     }
 
     @Override

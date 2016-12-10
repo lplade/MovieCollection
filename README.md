@@ -15,5 +15,10 @@ Manually initialize database as follows:
     create user 'lade'@'localhost' identified by 'agram';
     create database movie_library;
     grant select, insert, create, update, drop on movie_library.* to 'lade'@'localhost'; 
+    
+## Future features ##
+* Use ORM to manage MySQL<->classes
+* Query online sources to populate data about shows
+
 
 

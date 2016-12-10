@@ -51,15 +51,25 @@ public class Controller {
         return db.fetchAllContainers();
     }
 
+    public Vector<Movie> getAllMovies(){
+        return db.fetchAllMovies();
+    }
+
+    public Vector<TVShow> getAllShows() {
+        return db.fetchAllShows();
+    }
+
     public void addContainerToDatabase(Container container) {
         db.addContainer(container);
     }
 
-    void addMovieToContainer(Movie movie, Container container) {
+    void addMovie(Movie movie) {
+        assert movie.containerID > -1;
         db.addMovie(movie);
     }
 
-    void addTVShowToContainer(TVShow tvShow, Container container) {
+    void addTVShow(TVShow tvShow) {
+        assert tvShow.containerID > -1;
         db.addTVShow(tvShow);
     }
     void updateContainer(int currentID, Container container){

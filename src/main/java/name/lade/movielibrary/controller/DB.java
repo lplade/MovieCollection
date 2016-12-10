@@ -443,13 +443,15 @@ class DB {
     }
 
     void deleteTitle(Title title) {
-        //only used for fixing accidental entries - should really drop parent Container
-        //TODO drop - be sure to cascade to model.Movie or model.TVShow
+        //only used for fixing accidental entries - should really drop parent Container unless we lose a disc or something
+        //TODO drop - be sure to cascade to Movie or TVShow
     }
 
     void deleteContainer(int containerID) {
-        //TODO check if that is a legit index?
+
         try (Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)) {
+            //TODO check if containerID is a legit index in the table?
+
             String deleteStr = "DELETE FROM Container WHERE ContainerID = ?";
             PreparedStatement deletePS = conn.prepareStatement(deleteStr);
 

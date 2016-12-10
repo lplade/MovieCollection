@@ -71,6 +71,8 @@ public class MovieTableModel extends AbstractTableModel {
             case 6: // Year
                 return allMovies.get(rowIndex).year;
             case 7: // Rating
+                return allMovies.get(rowIndex).rating;
+            case 8: // Cut
                 return allMovies.get(rowIndex).cut;
             default: //should never get here
                 log.warn("Trying to access OOB column in Movie");

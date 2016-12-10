@@ -1,7 +1,7 @@
 package name.lade.movielibrary.view;
 
 import name.lade.Log;
-import name.lade.movielibrary.controller.Controller;
+import name.lade.movielibrary.controller.*;
 import name.lade.movielibrary.model.*;
 import name.lade.movielibrary.model.Container;
 
@@ -29,7 +29,7 @@ public class GUI extends JFrame {
     private JTable tvTable;
     private JToolBar mainJToolBar;
     private JButton newShelfItemButton;
-    private JButton updateButton;
+    private JButton updateContainerButton;
     private JButton deleteButton;
     private JTextField nameTextField;
     private JTextField barCodeTextField;
@@ -39,7 +39,30 @@ public class GUI extends JFrame {
     private JComboBox pDateDDComboBox;
     private JCheckBox sellCheckBox;
     private JCheckBox soldCheckBox;
-    private JButton clearButton;
+    private JButton clearContainerButton;
+    private JButton addMovieButton;
+    private JButton updateMovieButton;
+    private JButton clearMovieButton;
+    private JTextField movieTitleTextField;
+    private JTextField movieFormatTextField;
+    private JComboBox movieContainerComboBox;
+    private JTextField movieGenreTextField;
+    private JTextField movieLangTextField;
+    private JTextField movieYearTextField;
+    private JTextField movieRatingTextField;
+    private JButton addTVShowButton;
+    private JLabel tvShowDialogPanel;
+    private JPanel movieDialogPanel;
+    private JPanel containerDialogPanel;
+    private JButton updateTVShowButton;
+    private JButton clearTVShowButton;
+    private JTextField tvShowTitleTextField;
+    private JTextField tvShowFormatTextField;
+    private JComboBox tvShowContainerComboBox;
+    private JTextField tvShowGenreTextBox;
+    private JTextField tvShowLangTextBox;
+    private JTextField tvShowYearTextBox;
+    private JTextField tvShowRatingTextBox;
 
     //https://docs.oracle.com/javase/tutorial/uiswing/components/tabbedpane.html
     //https://docs.oracle.com/javase/tutorial/uiswing/components/toolbar.html
@@ -56,7 +79,7 @@ public class GUI extends JFrame {
     private Log log = new Log();
 
     public GUI(Controller controller) {
-        super("model.Movie Collection");
+        super("Movie Collection");
         setContentPane(rootPanel);
         setPreferredSize(new Dimension(800, 600));
 
@@ -77,15 +100,41 @@ public class GUI extends JFrame {
         selectedRecord = -1 ; //this means no record is selected
 
         addListeners();
+        addContainerTabListeners();
+        addMovieTabListeners();
+        addTVShowTabListeners();
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
 
+    }
 
+
+
+    // Listeners for whole window
+    private void addListeners() {
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(
+                        GUI.this,
+                        "Are you sure you want to exit?",
+                        "Exit?",
+                        JOptionPane.OK_CANCEL_OPTION)) {
+                    //reset the database
+                    //controller.resetAllData();
+                    //And quit.
+                    System.exit(0);
+                }
+                //super.windowClosing(e);
+            }
+        });
 
     }
 
-    private void addListeners() {
+    //Listeners for the container tab
+    private void addContainerTabListeners() {
 
         //watch if user selects a row
         //http://stackoverflow.com/questions/10128064/jtable-selected-row-click-event
@@ -97,34 +146,29 @@ public class GUI extends JFrame {
                 //http://stackoverflow.com/questions/13102246/remove-the-selection-from-a-jlist-in-java-swing
                 if (!e.getValueIsAdjusting() && containerTable.getSelectedRow() >= 0){
 
-                    //grab the contents of the selected record
-                    String c_ID = containerTable.getValueAt(containerTable.getSelectedRow(), 1).toString();
-                    String name = containerTable.getValueAt(containerTable.getSelectedRow(), 2).toString();
-                    //TODO format as 0-padded
-                    String barcode = containerTable.getValueAt(containerTable.getSelectedRow(), 3).toString();
-                    //TODO get name field for Location and display it here instead
-                    String l_ID = containerTable.getValueAt(containerTable.getSelectedRow(), 4).toString();
-                    String pDate = containerTable.getValueAt(containerTable.getSelectedRow(), 5).toString();
-                    String loan = containerTable.getValueAt(containerTable.getSelectedRow(), 6).toString();
-                    //return as Yes/No?
-                    boolean sell = (boolean) containerTable.getValueAt(containerTable.getSelectedRow(), 7);
-                    boolean sold = (boolean) containerTable.getValueAt(containerTable.getSelectedRow(), 8);
+                    log.debug("Selected row = " + containerTable.getSelectedRow());
 
-                    //display these SOMEWHERE
-                    nameTextField.setText(name);
-                    barCodeTextField.setText(barcode);
+                    //re-get the model object so we can use .getRow() method
+                    int row = containerTable.getSelectedRow();
+                    ContainerTableModel containerTM = (ContainerTableModel) containerTable.getModel();
+                    Container container = containerTM.getRow(row);
+
+                    //display contents of that Container
+                    nameTextField.setText(container.name);
+                    barCodeTextField.setText(String.valueOf(container.barcode));
                     //TODO location field
-                    //TODO parse date into YYYY, MM, and DD -OR- set up date picker
-                    sellCheckBox.setSelected(sell);
-                    soldCheckBox.setSelected(sold);
+                    //TODO parse date into YYY, MM, and DD -OR- set up date picker
+                    sellCheckBox.setSelected(container.sell);
+                    soldCheckBox.setSelected(container.sold);
 
                     //update the index records
                     int id;
                     try {
-                        id = (int) containerTable.getValueAt(containerTable.getSelectedRow(),0);
-
+                        id = container.containerID;
+                        log.debug("Selected ContainerID = " + id);
                     } catch (ArrayIndexOutOfBoundsException oobe) {
                         //when we clear the selection, the listener fires and returns an invalid value here
+                        log.debug("list selection OOB (this is not a problem)");
                         id = -1;
                     }
 
@@ -200,14 +244,14 @@ public class GUI extends JFrame {
             }
         });
 
-        updateButton.addActionListener(new ActionListener() {
+        updateContainerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //TODO implement
             }
         });
 
-        clearButton.addActionListener(new ActionListener() {
+        clearContainerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //TODO clear the text fields
@@ -219,20 +263,50 @@ public class GUI extends JFrame {
             }
         });
 
-        addWindowListener(new WindowAdapter() {
+
+    }
+
+    //Listeners for Movie tab
+    private void addMovieTabListeners() {
+        addMovieButton.addActionListener(new ActionListener() {
             @Override
-            public void windowClosing(WindowEvent e) {
-                if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(
-                        GUI.this,
-                        "Are you sure you want to exit?",
-                        "Exit?",
-                        JOptionPane.OK_CANCEL_OPTION)) {
-                    //reset the database
-                    //controller.resetAllData();
-                    //And quit.
-                    System.exit(0);
-                }
-                //super.windowClosing(e);
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        updateMovieButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        clearMovieButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+    }
+
+    //Listeners for TV Show tab
+    private void addTVShowTabListeners() {
+
+        addTVShowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        updateTVShowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        clearTVShowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
             }
         });
 

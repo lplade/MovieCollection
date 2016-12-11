@@ -63,6 +63,7 @@ public class GUI extends JFrame {
     private JTextField tvShowLangTextBox;
     private JTextField tvShowYearTextBox;
     private JTextField tvShowRatingTextBox;
+    private JComboBox<Borrower> containerBorrowerComboBox;
 
     //https://docs.oracle.com/javase/tutorial/uiswing/components/tabbedpane.html
     //https://docs.oracle.com/javase/tutorial/uiswing/components/toolbar.html
@@ -101,6 +102,7 @@ public class GUI extends JFrame {
 
         //populate the ComboBoxes
         configureLocationComboBox(containerLocationComboBox);
+        configureBorrowerComboBox(containerBorrowerComboBox);
         configureContainerComboBox(movieContainerComboBox);
         configureContainerComboBox(tvShowContainerComboBox);
 
@@ -113,6 +115,14 @@ public class GUI extends JFrame {
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
+
+    }
+
+    //Populates a Borrower combo box tab with Borrowers
+    private void configureBorrowerComboBox(JComboBox<Borrower> comboBox) {
+        for (Borrower borrower : controller.allBorrowers) {
+            comboBox.addItem(borrower);
+        }
     }
 
     //Populates a Location combo box tab with Locations
@@ -177,6 +187,8 @@ public class GUI extends JFrame {
                     barCodeTextField.setText(String.valueOf(container.barcode));
                     Location loc = controller.getLocationByID(container.locationID); //query Location...
                     containerLocationComboBox.setSelectedItem(loc);                  //...and update the ComboBox
+                    Borrower brw = controller.getBorrowerByID(container.borrowerID);
+                    containerBorrowerComboBox.setSelectedItem(brw);
                     //TODO parse date into YYY, MM, and DD -OR- set up date picker
                     sellCheckBox.setSelected(container.sell);
                     soldCheckBox.setSelected(container.sold);
@@ -209,6 +221,13 @@ public class GUI extends JFrame {
             }
         });
 
+        containerBorrowerComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO do stuff?
+            }
+        });
+
         newShelfItemButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -219,7 +238,8 @@ public class GUI extends JFrame {
                 Location location = (Location) containerLocationComboBox.getSelectedItem();
                 int locID = location.locationID;
                 //TODO something with date
-                int borrowerID; //TODO make a form field!
+                Borrower borrower = (Borrower) containerBorrowerComboBox.getSelectedItem();
+                int brwID = borrower.borrowerID;
                 boolean sell = sellCheckBox.isSelected();
                 boolean sold = soldCheckBox.isSelected();
 
@@ -235,6 +255,7 @@ public class GUI extends JFrame {
                 }
                 //assert barcode >= 0;
                 //shouldn't need to validate Location, it came from ComboBox
+                //shouldn't need to validate Borrower, it came from ComboBox
                 //TODO validate date?
 
                 //Date placeholderDate = (Date) new java.util.Date();
@@ -249,7 +270,7 @@ public class GUI extends JFrame {
                 if(barcode != null) newContainer.barcode = barcode;
                 newContainer.locationID = locID;  //database enforces this field, not optional
                 //newContainer.purchaseDate = placeholderDate;
-                //newContainer.borrowerID = borrowerID;
+                newContainer.borrowerID = brwID;
                 newContainer.sell = sell;
                 newContainer.sold = sold;
 
@@ -265,9 +286,9 @@ public class GUI extends JFrame {
                 sellCheckBox.setSelected(false);
                 soldCheckBox.setSelected(false);
 
-                //reset the combox boxes
+                //reset the combo boxes
                 containerLocationComboBox.setSelectedIndex(0);
-                //TODO borrower
+                containerBorrowerComboBox.setSelectedIndex(0);
 
                 //refresh to reflect the changes
                 Vector<Container> allContainers = controller.getAllContainers();
@@ -286,8 +307,20 @@ public class GUI extends JFrame {
         clearContainerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO clear the text fields
-                //TODO set selectedRecord back to -1
+
+                //reset all form fields
+                nameTextField.setText("");
+                barCodeTextField.setText("");
+                sellCheckBox.setSelected(false);
+                soldCheckBox.setSelected(false);
+                containerLocationComboBox.setSelectedIndex(0);
+                containerBorrowerComboBox.setSelectedIndex(0);
+
+
+                //clear the JTable selection
+                containerTable.clearSelection();
+                selectedRecord = -1;
+
                 //TODO unselect JTable if needed
                 //TODO re-enable Add button if needed
                 //TODO disable the Update button

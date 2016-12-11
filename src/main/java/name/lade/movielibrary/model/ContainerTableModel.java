@@ -60,13 +60,13 @@ public class ContainerTableModel extends AbstractTableModel {
                 //TODO return String method?
                 return allContainers.get(rowIndex).barcode;
             case 3: // LocationID
-                //TODO query Location table and return name field
+                //TODO return a Container.Location.name instead of a Container.locationID
                 return allContainers.get(rowIndex).locationID;
             case 4: // Purchase Date
                 //TODO format string nicely
                 return allContainers.get(rowIndex).purchaseDate;
             case 5: // Borrower
-                //TODO query Borrower table and return name
+                //TODO return a Container.Borrower.name instead of a Container.borrowerID
                 return allContainers.get(rowIndex).borrowerID;
             case 6: // Sell flag
                 return allContainers.get(rowIndex).sell;

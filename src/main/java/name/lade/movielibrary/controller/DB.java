@@ -630,6 +630,39 @@ class DB {
         }
     }
 
+    Vector<Borrower> fetchAllBorrowers() {
+        Vector<Borrower> allBorrowers = new Vector<>();
+
+        try (
+                Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD);
+                Statement statement = conn.createStatement()
+        ) {
+            String selectAllSQL = "SELECT * FROM Borrower";
+            ResultSet rs = statement.executeQuery(selectAllSQL);
+
+            while (rs.next()){
+                int id = rs.getInt("BorrowerID");
+                String name = rs.getString("Name");
+                String email = rs.getString("Email");
+                int phone = rs.getInt("Phone");
+                Borrower borrower = new Borrower(name, id, email, phone);
+                allBorrowers.add(borrower);
+            }
+
+            rs.close();
+            statement.close();
+            conn.close();
+
+            log.debug("Retrieved all Borrowers");
+
+            return allBorrowers;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     //Queries a single Location by ID#
     Location getLocationByID(int locationID) {
 
@@ -664,6 +697,42 @@ class DB {
             return null;
         }
 
+    }
+
+    //Queries a single Borrower by ID#
+    Borrower getBorrowerByID(int borrowerID) {
+        //construct with an error message in name, overwrite with successful query
+        Borrower foundBorrower = new Borrower("QUERY ERROR!");
+
+        try ( Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)) {
+            String selectIdSQL =
+                    "SELECT * " +
+                            "FROM Borrower " +
+                            "WHERE BorrowerID = ?";
+            PreparedStatement selectPS = conn.prepareStatement(selectIdSQL);
+
+            selectPS.setInt(1, borrowerID);
+            ResultSet rs = selectPS.executeQuery();
+            log.debug("Queried Borrower " + borrowerID);
+
+            while (rs.next()){
+                int id = rs.getInt("BorrowerID");
+                String name = rs.getString("Name");
+                String email = rs.getString("Email");
+                int phone = rs.getInt("Phone");
+                foundBorrower = new Borrower(name, id, email, phone);
+            }
+
+            selectPS.close();
+            conn.close();
+
+            return foundBorrower;
+
+        } catch (SQLException e) {
+            log.error("Trouble querying LocationID " + borrowerID);
+            e.printStackTrace();
+            return null;
+        }
     }
 
     void initBorrower() {

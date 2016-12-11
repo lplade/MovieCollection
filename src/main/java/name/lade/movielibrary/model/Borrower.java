@@ -16,6 +16,14 @@ public class Borrower {
         this.name = name;
     }
 
+    //Full constructor
+    public Borrower(String name, int borrowerID, String email, int phone){
+        this.name = name;
+        this.borrowerID = borrowerID;
+        this.email = email;
+        this.phone = phone;
+    }
+
     @Override
     public String toString() {
         return this.name;

@@ -33,10 +33,10 @@ public class GUI extends JFrame {
     private JButton deleteButton;
     private JTextField nameTextField;
     private JTextField barCodeTextField;
-    private JComboBox locationComboBox;
-    private JComboBox pDateYYYYComboBox;
-    private JComboBox pDateMMComboBox;
-    private JComboBox pDateDDComboBox;
+    private JComboBox<Location> containerLocationComboBox;
+    private JComboBox<Integer> pDateYYYYComboBox;
+    private JComboBox<Integer> pDateMMComboBox;
+    private JComboBox<Integer> pDateDDComboBox;
     private JCheckBox sellCheckBox;
     private JCheckBox soldCheckBox;
     private JButton clearContainerButton;
@@ -45,7 +45,7 @@ public class GUI extends JFrame {
     private JButton clearMovieButton;
     private JTextField movieTitleTextField;
     private JTextField movieFormatTextField;
-    private JComboBox movieContainerComboBox;
+    private JComboBox<Container> movieContainerComboBox;
     private JTextField movieGenreTextField;
     private JTextField movieLangTextField;
     private JTextField movieYearTextField;
@@ -58,7 +58,7 @@ public class GUI extends JFrame {
     private JButton clearTVShowButton;
     private JTextField tvShowTitleTextField;
     private JTextField tvShowFormatTextField;
-    private JComboBox tvShowContainerComboBox;
+    private JComboBox<Container> tvShowContainerComboBox;
     private JTextField tvShowGenreTextBox;
     private JTextField tvShowLangTextBox;
     private JTextField tvShowYearTextBox;
@@ -99,17 +99,36 @@ public class GUI extends JFrame {
 
         selectedRecord = -1 ; //this means no record is selected
 
+        //populate the ComboBoxes
+        configureLocationComboBox(containerLocationComboBox);
+        configureContainerComboBox(movieContainerComboBox);
+        configureContainerComboBox(tvShowContainerComboBox);
+
+        //set up listeners
         addListeners();
         addContainerTabListeners();
         addMovieTabListeners();
         addTVShowTabListeners();
+
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
+    }
+
+    //Populates a Location combo box tab with Locations
+    private void configureLocationComboBox(JComboBox<Location> comboBox) {
+        for (Location location : controller.allLocations) {
+            comboBox.addItem(location);
+        }
 
     }
 
-
+    //Populates a Container combo bow with Containers
+    private void configureContainerComboBox(JComboBox<Container> comboBox) {
+        for (Container container : controller.allContainers) {
+            comboBox.addItem(container);
+        }
+    }
 
     // Listeners for whole window
     private void addListeners() {
@@ -156,7 +175,8 @@ public class GUI extends JFrame {
                     //display contents of that Container
                     nameTextField.setText(container.name);
                     barCodeTextField.setText(String.valueOf(container.barcode));
-                    //TODO location field
+                    Location loc = controller.getLocationByID(container.locationID); //query Location...
+                    containerLocationComboBox.setSelectedItem(loc);                  //...and update the ComboBox
                     //TODO parse date into YYY, MM, and DD -OR- set up date picker
                     sellCheckBox.setSelected(container.sell);
                     soldCheckBox.setSelected(container.sold);
@@ -182,6 +202,13 @@ public class GUI extends JFrame {
             }
         });
 
+        containerLocationComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO do stuff?
+            }
+        });
+
         newShelfItemButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -189,7 +216,8 @@ public class GUI extends JFrame {
                 String name = nameTextField.getText();
                 String barcodeStr = barCodeTextField.getText();
                 Long barcode = null;
-                //TODO something with location
+                Location location = (Location) containerLocationComboBox.getSelectedItem();
+                int locID = location.locationID;
                 //TODO something with date
                 int borrowerID; //TODO make a form field!
                 boolean sell = sellCheckBox.isSelected();
@@ -206,7 +234,7 @@ public class GUI extends JFrame {
                     }
                 }
                 //assert barcode >= 0;
-                //TODO validate location?
+                //shouldn't need to validate Location, it came from ComboBox
                 //TODO validate date?
 
                 //Date placeholderDate = (Date) new java.util.Date();
@@ -219,7 +247,7 @@ public class GUI extends JFrame {
                 //assign attributes if defined
                 //TODO ifdefined checks
                 if(barcode != null) newContainer.barcode = barcode;
-                //newContainer.locationID
+                newContainer.locationID = locID;  //database enforces this field, not optional
                 //newContainer.purchaseDate = placeholderDate;
                 //newContainer.borrowerID = borrowerID;
                 newContainer.sell = sell;
@@ -236,6 +264,10 @@ public class GUI extends JFrame {
                 barCodeTextField.setText("");
                 sellCheckBox.setSelected(false);
                 soldCheckBox.setSelected(false);
+
+                //reset the combox boxes
+                containerLocationComboBox.setSelectedIndex(0);
+                //TODO borrower
 
                 //refresh to reflect the changes
                 Vector<Container> allContainers = controller.getAllContainers();

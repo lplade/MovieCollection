@@ -42,6 +42,10 @@ public class Container {
         this.sold = sold;
     }
 
-
+    //need this defined to populate JComboBox sensibly
+    @Override
+    public String toString(){
+        return this.name;
+    }
 
 }

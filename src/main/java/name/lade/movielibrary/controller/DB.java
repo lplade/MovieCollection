@@ -560,10 +560,11 @@ class DB {
         ) {
             String selectAllSQL =
                     "SELECT * " +
-                            "FROM Title " +
-                            "JOIN TVShow " +
-                            "ON Title.TitleID = TVShow.TitleID";
+                    "FROM Title " +
+                    "JOIN TVShow " +
+                    "ON Title.TitleID = TVShow.TitleID";
             ResultSet rs = statement.executeQuery(selectAllSQL);
+
 
             while (rs.next()){
                 int id = rs.getInt("TitleID");
@@ -594,6 +595,73 @@ class DB {
         } catch (SQLException e) {
             e.printStackTrace();
             return null; //return something
+        }
+
+    }
+
+    Vector<Location> fetchAllLocations() {
+        Vector<Location> allLocations = new Vector<>();
+
+        try (
+                Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD);
+                Statement statement = conn.createStatement()
+                ) {
+            String selectAllSQL = "SELECT * FROM Location";
+            ResultSet rs = statement.executeQuery(selectAllSQL);
+
+            while (rs.next()){
+                int id = rs.getInt("LocationID");
+                String name = rs.getString("Name");
+                Location location = new Location(name, id);
+                allLocations.add(location);
+            }
+
+            rs.close();
+            statement.close();
+            conn.close();
+
+            log.debug("Retrieved all Locations");
+
+            return allLocations;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    //Queries a single Location by ID#
+    Location getLocationByID(int locationID) {
+
+        //construct with an error message in name, overwrite with successful query
+        Location foundLocation = new Location("QUERY ERROR!");
+
+        try ( Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)) {
+            String selectIdSQL =
+                    "SELECT * " +
+                    "FROM Location " +
+                    "WHERE LocationID = ?";
+            PreparedStatement selectPS = conn.prepareStatement(selectIdSQL);
+
+            selectPS.setInt(1, locationID);
+            ResultSet rs = selectPS.executeQuery();
+            log.debug("Queried Location " + locationID);
+
+            while (rs.next()){
+                int id = rs.getInt("LocationID");
+                String name = rs.getString("Name");
+                foundLocation = new Location(name, id);
+            }
+
+            selectPS.close();
+            conn.close();
+
+            return foundLocation;
+
+        } catch (SQLException e) {
+            log.error("Trouble querying LocationID " + locationID);
+            e.printStackTrace();
+            return null;
         }
 
     }
@@ -637,6 +705,7 @@ class DB {
             return true; //must return something
         }
     }
+
 
 
 }

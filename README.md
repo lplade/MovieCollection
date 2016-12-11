@@ -19,6 +19,7 @@ Manually initialize database as follows:
 ## Future features ##
 * Use ORM to manage MySQL<->classes
 * Query online sources to populate data about shows
+* Use SQLite
 
 
 

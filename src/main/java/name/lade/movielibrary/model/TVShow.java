@@ -16,4 +16,12 @@ public class TVShow extends Title {
         this.season = season;
         this.rating = rating;
     }
+
+    @Override
+    public String toString() {
+        String nameSeason = this.name;
+        //if season is defined, include it in the string
+        if( this.season > -1) nameSeason += " (S" + this.season + ")";
+        return nameSeason;
+    }
 }

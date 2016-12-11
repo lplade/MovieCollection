@@ -19,6 +19,7 @@ public class Controller {
     public Vector<Container> allContainers;
     public Vector<Movie> allMovies;
     public Vector<TVShow> allShows;
+    public Vector<Location> allLocations;
 
     public static void main(String[] args) {
         Controller controller = new Controller();
@@ -35,9 +36,10 @@ public class Controller {
         db.initLocation();
 
         //query the database to create the collections we need
-        allContainers = db.fetchAllContainers();
-        allMovies = db.fetchAllMovies();
-        allShows = db.fetchAllShows();
+        allLocations = getAllLocations();
+        allContainers = getAllContainers();
+        allMovies = getAllMovies();
+        allShows = getAllShows();
 
         gui = new GUI(this);
 
@@ -57,6 +59,10 @@ public class Controller {
 
     public Vector<TVShow> getAllShows() {
         return db.fetchAllShows();
+    }
+
+    public Vector<Location> getAllLocations() {
+        return db.fetchAllLocations();
     }
 
     public void addContainerToDatabase(Container container) {
@@ -91,6 +97,12 @@ public class Controller {
 
     void deleteContainer(int containerID) {
         db.deleteContainer(containerID);
+    }
+
+    public Location getLocationByID(int locationID) {
+        assert locationID > 0;
+        return db.getLocationByID(locationID);
+
     }
 
     //TODO Borrower methods

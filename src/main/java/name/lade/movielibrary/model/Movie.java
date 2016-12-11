@@ -17,4 +17,13 @@ public class Movie extends Title {
         this.rating = rating;
         this.cut = cut;
     }
+
+    @Override
+    public String toString(){
+        String nameYear = this.name;
+        //append the year if it's defined
+        //motion pictures didn't exist prior to 1889
+        if(this.year > 1888) nameYear += " (" + this.year + ")";
+        return nameYear;
+    }
 }

@@ -4,7 +4,8 @@ import name.lade.movielibrary.model.*;
 import name.lade.Log;
 
 import java.sql.*;
-import java.util.Vector;
+import java.sql.Date;
+import java.util.*;
 
 /*
 Handles all database access methods
@@ -730,6 +731,46 @@ class DB {
 
         } catch (SQLException e) {
             log.error("Trouble querying LocationID " + borrowerID);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    //Queries a single Container by ID#
+    Container getContainerByID(int containerID) {
+        //construct with an error message in name, overwrite with successful query
+        Container foundContainer = new Container("QUERY ERROR!");
+
+        try ( Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)) {
+            String selectIdSQL =
+                    "SELECT * " +
+                            "FROM Container " +
+                            "WHERE ContainerID = ?";
+            PreparedStatement selectPS = conn.prepareStatement(selectIdSQL);
+
+            selectPS.setInt(1, containerID);
+            ResultSet rs = selectPS.executeQuery();
+            log.debug("Queried Container " + containerID);
+
+            while (rs.next()){
+                int id = rs.getInt("ContainerID");
+                String name = rs.getString("Name");
+                long barcode = rs.getLong("Barcode");
+                int locationID = rs.getInt("LocationID");
+                Date pDate = rs.getDate("PurchaseDate");
+                int borrowerID = rs.getInt("BorrowerID");
+                boolean sell = rs.getBoolean("Sell");
+                boolean sold = rs.getBoolean("Sold");
+                foundContainer = new Container(name, id, barcode, locationID, pDate, borrowerID, sell, sold);
+            }
+
+            selectPS.close();
+            conn.close();
+
+            return foundContainer;
+
+        } catch (SQLException e) {
+            log.error("Trouble querying ContainerID " + containerID);
             e.printStackTrace();
             return null;
         }

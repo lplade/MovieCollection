@@ -75,7 +75,7 @@ public class Controller {
         db.addContainer(container);
     }
 
-    void addMovie(Movie movie) {
+    public void addMovie(Movie movie) {
         assert movie.containerID > -1;
         db.addMovie(movie);
     }
@@ -114,6 +114,11 @@ public class Controller {
     public Borrower getBorrowerByID(int borrowerID) {
         assert borrowerID > 0;
         return db.getBorrowerByID(borrowerID);
+    }
+
+    public Container getContainerByID(int containerID) {
+        assert containerID > 0;
+        return db.getContainerByID(containerID);
     }
 
     //TODO Person methods

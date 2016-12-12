@@ -29,6 +29,7 @@ public class Title {
         this.name = name;
         this.titleID = titleID;
         this.format = format;
+        this.containerID = containerID;
         this.genre = genre;
         this.language = language;
     }

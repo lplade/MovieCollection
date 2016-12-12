@@ -28,9 +28,10 @@ public class GUI extends JFrame {
     private JTable movieTable;
     private JTable tvTable;
     private JToolBar mainJToolBar;
-    private JButton newShelfItemButton;
+    private JButton addContainerButton;
     private JButton updateContainerButton;
     private JButton containerDeleteButton;
+    private JTextField containerNameTextField;
     private JTextField barCodeTextField;
     private JComboBox<Location> containerLocationComboBox;
     private JComboBox<Integer> pDateYYYYComboBox;
@@ -123,6 +124,7 @@ public class GUI extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
 
+
     }
 
     //Populates a Borrower combo box tab with Borrowers
@@ -147,7 +149,7 @@ public class GUI extends JFrame {
         }
     }
 
-    // Listeners for whole window
+    //*** Listeners for whole window ***
     private void addListeners() {
 
         addWindowListener(new WindowAdapter() {
@@ -169,7 +171,7 @@ public class GUI extends JFrame {
 
     }
 
-    //Listeners for the container tab
+    //*** Listeners for the container tab ***
     private void addContainerTabListeners() {
 
         //watch if user selects a row
@@ -190,7 +192,7 @@ public class GUI extends JFrame {
                     Container container = containerTM.getRow(row);
 
                     //display contents of that Container
-                    movieTitleTextField.setText(container.name);
+                    containerNameTextField.setText(container.name);
                     barCodeTextField.setText(String.valueOf(container.barcode));
                     Location loc = controller.getLocationByID(container.locationID); //query Location...
                     containerLocationComboBox.setSelectedItem(loc);                  //...and update the ComboBox
@@ -235,11 +237,11 @@ public class GUI extends JFrame {
             }
         });
 
-        newShelfItemButton.addActionListener(new ActionListener() {
+        addContainerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //get from fields
-                String name = movieTitleTextField.getText();
+                String name = containerNameTextField.getText();
                 String barcodeStr = barCodeTextField.getText();
                 Long barcode = null;
                 Location location = (Location) containerLocationComboBox.getSelectedItem();
@@ -287,7 +289,7 @@ public class GUI extends JFrame {
                 containerTable.clearSelection();
 
                 //clear the input JTextFields
-                movieTitleTextField.setText("");
+                containerNameTextField.setText("");
                 barCodeTextField.setText("");
                 sellCheckBox.setSelected(false);
                 soldCheckBox.setSelected(false);
@@ -312,7 +314,7 @@ public class GUI extends JFrame {
                 }
 
                 //get from fields
-                String name = movieTitleTextField.getText();
+                String name = containerNameTextField.getText();
                 String barcodeStr = barCodeTextField.getText();
                 Long barcode = null;
                 Location location = (Location) containerLocationComboBox.getSelectedItem();
@@ -361,7 +363,7 @@ public class GUI extends JFrame {
                 containerTable.clearSelection();
 
                 //clear the input JTextFields
-                movieTitleTextField.setText("");
+                containerNameTextField.setText("");
                 barCodeTextField.setText("");
                 sellCheckBox.setSelected(false);
                 soldCheckBox.setSelected(false);
@@ -381,7 +383,7 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 //reset all form fields
-                movieTitleTextField.setText("");
+                containerNameTextField.setText("");
                 barCodeTextField.setText("");
                 sellCheckBox.setSelected(false);
                 soldCheckBox.setSelected(false);
@@ -403,7 +405,7 @@ public class GUI extends JFrame {
 
     }
 
-    //Listeners for Movie tab
+    //*** Listeners for Movie tab ***
     private void addMovieTabListeners() {
         //watch if user selects a row
         //http://stackoverflow.com/questions/10128064/jtable-selected-row-click-event
@@ -425,8 +427,8 @@ public class GUI extends JFrame {
                     //display contents of that Movie
                     movieTitleTextField.setText(movie.name);
                     movieFormatTextField.setText(movie.format);
-                    Container cont = (Container) movieContainerComboBox.getSelectedItem();
-                    movieContainerComboBox.setSelectedItem(cont);
+                    Container cont = controller.getContainerByID(movie.containerID);
+                    movieContainerComboBox.setSelectedItem(cont); //TODO this still doesn't update!
                     movieGenreTextField.setText(movie.genre);
                     movieLangTextField.setText(movie.getLanguageStr());
                     movieYearTextField.setText(String.valueOf(movie.year));
@@ -454,44 +456,117 @@ public class GUI extends JFrame {
             }
         });
 
+        movieContainerComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO do stuff?
+            }
+        });
+
         addMovieButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                //get from fields
+                String name = movieTitleTextField.getText();
+                String format = movieFormatTextField.getText();
+                Container container = (Container) movieContainerComboBox.getSelectedItem();
+                int containerID = container.containerID;
+                String genre = movieGenreTextField.getText();
+                String langStr = movieLangTextField.getText();
+                char[] language = new char[2];
+                //TODO convert to char[2];
+                String yearStr = movieYearTextField.getText();
+                int year = -1;
+                String rating = movieRatingTextField.getText();
+
+                //validate these
+                if (! testStringNotNull(name, "movie name")) return;
+                if (!langStr.isEmpty()) {
+                    if (! testIsChar2(langStr)) {
+                        return;
+                    } else {
+                        language = toChar2(langStr);
+                    }
+                }
+                if (!yearStr.isEmpty()){
+                    //TODO check for years < 1888 and error
+                    year = Integer.parseInt(yearStr);
+                }
+
+                //Construct new Movie object
+                Movie newMovie = new Movie(name);
+                //assign attributes if define
+                if(format != null) newMovie.format = format;
+                newMovie.containerID = containerID;
+                if(genre != null) newMovie.genre = genre;
+                if(language != null) newMovie.language = language;
+                if(year > -1) newMovie.year = year;
+                if(rating != null) newMovie.rating = rating;
+
+                //add the Movie to the database
+                controller.addMovie(newMovie);
+
+                //clear the JTable selection
+                movieTable.clearSelection();
+
+                //clear the input fields
+                movieTitleTextField.setText("");
+                movieFormatTextField.setText("");
+                movieGenreTextField.setText("");
+                movieLangTextField.setText("");
+                movieYearTextField.setText("");
+                movieRatingTextField.setText("");
+
+                //reset the combo box
+                //movieContainerComboBox.setSelectedIndex(0);
+                //actually, don't. Leave it where it was so we can add more titles to the same container
+
+                //refresh to reflect the changes
+                Vector<Movie> allMovies = controller.getAllMovies();
+                setMovieListData(allMovies);
+
 
             }
         });
         updateMovieButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                //TODO implement
 
             }
         });
         clearMovieButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                //TODO implement
 
             }
         });
     }
 
-    //Listeners for TV Show tab
+
+
+    //*** Listeners for TV Show tab ***
     private void addTVShowTabListeners() {
 
         addTVShowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                //TODO implement
 
             }
         });
         updateTVShowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                //TODO implement
 
             }
         });
         clearTVShowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                //TODO implement
 
             }
         });
@@ -511,7 +586,7 @@ public class GUI extends JFrame {
     }
 
 
-    //helper methods
+    //*** helper methods ***
 
     //tests if a string is empty
     //displays an error dialog if it is
@@ -554,6 +629,31 @@ public class GUI extends JFrame {
             );
             return false;
         }
+    }
+
+    //test if a string is a char[2]
+    private boolean testIsChar2(String langStr) {
+        //assuming 1 letter = 1 char
+        //TODO filter for multibyte Unicode
+        if (langStr.length() != 2) {
+            String errMesg = "Language must be entered in two-letter ISO code";
+            JOptionPane.showMessageDialog(
+                    GUI.this,
+                    errMesg
+            );
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    //convert String to char[2]
+    private char[] toChar2(String s){
+        char[] outChars = new char[2];
+        for (int i = 0; i < 2; i++) {
+            outChars[i] = s.charAt(i);
+        }
+        return outChars;
     }
 
 

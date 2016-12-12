@@ -240,67 +240,24 @@ public class GUI extends JFrame {
         addContainerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //get from fields
-                String name = containerNameTextField.getText();
-                String barcodeStr = barCodeTextField.getText();
-                Long barcode = null;
-                Location location = (Location) containerLocationComboBox.getSelectedItem();
-                int locID = location.locationID;
-                //TODO something with date
-                Borrower borrower = (Borrower) containerBorrowerComboBox.getSelectedItem();
-                int brwID = borrower.borrowerID;
-                boolean sell = sellCheckBox.isSelected();
-                boolean sold = soldCheckBox.isSelected();
 
-                //validate these
-                if (! testStringNotNull(name,"product name")) return;
-                if (!barcodeStr.isEmpty()) {
-                    if (! testIsPositiveLong(barcodeStr)) {
-                        return;
-                    } else {
-                        //TODO really, should parse to legit barcode
-                        barcode = Long.parseLong(barcodeStr);
-                    }
-                }
-                //assert barcode >= 0;
-                //shouldn't need to validate Location, it came from ComboBox
-                //shouldn't need to validate Borrower, it came from ComboBox
-                //TODO validate date?
+                //Build a Container from the form fields
+                Container newContainer = containerFormToObject();
 
-                //Date placeholderDate = (Date) new java.util.Date();
-
-                //shouldn't need to validate the checkboxes
-
-                //construct a new Container object
-                Container newContainer = new Container(name);
-                //assign attributes if defined
-                //TODO ifdefined checks
-                if(barcode != null) newContainer.barcode = barcode;
-                newContainer.locationID = locID;  //database enforces this field, not optional
-                //newContainer.purchaseDate = placeholderDate;
-                newContainer.borrowerID = brwID;
-                newContainer.sell = sell;
-                newContainer.sold = sold;
+                //abort if form data is not usable
+                if (newContainer.name.equals("ERRORVOID")) return;
 
                 //add the Container to the database
                 controller.addContainerToDatabase(newContainer);
 
-                //clear the JTable selection
-                containerTable.clearSelection();
-
-                //clear the input JTextFields
-                containerNameTextField.setText("");
-                barCodeTextField.setText("");
-                sellCheckBox.setSelected(false);
-                soldCheckBox.setSelected(false);
-
-                //reset the combo boxes
-                containerLocationComboBox.setSelectedIndex(0);
-                containerBorrowerComboBox.setSelectedIndex(0);
+                //Clear the form when we're done
+                resetContainerForm();
 
                 //refresh to reflect the changes
                 Vector<Container> allContainers = controller.getAllContainers();
                 setContainerListData(allContainers);
+
+                //TODO update the ComboBox models too
 
             }
         });
@@ -313,68 +270,24 @@ public class GUI extends JFrame {
                     return;
                 }
 
-                //get from fields
-                String name = containerNameTextField.getText();
-                String barcodeStr = barCodeTextField.getText();
-                Long barcode = null;
-                Location location = (Location) containerLocationComboBox.getSelectedItem();
-                int locID = location.locationID;
-                //TODO something with date
-                Borrower borrower = (Borrower) containerBorrowerComboBox.getSelectedItem();
-                int brwID = borrower.borrowerID;
-                boolean sell = sellCheckBox.isSelected();
-                boolean sold = soldCheckBox.isSelected();
+                //Build a Container from the form fields
+                Container newContainer = containerFormToObject();
 
-                //validate these
-                if (! testStringNotNull(name,"product name")) return;
-                if (!barcodeStr.isEmpty()) {
-                    if (! testIsPositiveLong(barcodeStr)) {
-                        return;
-                    } else {
-                        //TODO really, should parse to legit barcode
-                        barcode = Long.parseLong(barcodeStr);
-                    }
-                }
-                //assert barcode >= 0;
-                //shouldn't need to validate Location, it came from ComboBox
-                //shouldn't need to validate Borrower, it came from ComboBox
-                //TODO validate date?
-
-                //Date placeholderDate = (Date) new java.util.Date();
-
-                //shouldn't need to validate the checkboxes
-
-                //construct a new Container object
-                Container newContainer = new Container(name);
-                //assign attributes if defined
-                //TODO ifdefined checks
-                if(barcode != null) newContainer.barcode = barcode;
-                newContainer.locationID = locID;  //database enforces this field, not optional
-                //newContainer.purchaseDate = placeholderDate;
-                newContainer.borrowerID = brwID;
-                newContainer.sell = sell;
-                newContainer.sold = sold;
+                //abort if form data is not usable
+                if (newContainer.name.equals("ERRORVOID")) return;
 
                 //update the Container in the database
                 //selectedContainer = .containerID selected, should have been set by ListSelectionListener
                 controller.updateContainer(selectedContainer, newContainer);
 
-                //clear the JTable selection
-                containerTable.clearSelection();
-
-                //clear the input JTextFields
-                containerNameTextField.setText("");
-                barCodeTextField.setText("");
-                sellCheckBox.setSelected(false);
-                soldCheckBox.setSelected(false);
-
-                //reset the combo boxes
-                containerLocationComboBox.setSelectedIndex(0);
-                containerBorrowerComboBox.setSelectedIndex(0);
+                //Clear the form once we're done
+                resetContainerForm();
 
                 //refresh to reflect the changes
                 Vector<Container> allContainers = controller.getAllContainers();
                 setContainerListData(allContainers);
+
+                //TODO update the ComboBox models too
             }
         });
 
@@ -382,18 +295,7 @@ public class GUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                //reset all form fields
-                containerNameTextField.setText("");
-                barCodeTextField.setText("");
-                sellCheckBox.setSelected(false);
-                soldCheckBox.setSelected(false);
-                containerLocationComboBox.setSelectedIndex(0);
-                containerBorrowerComboBox.setSelectedIndex(0);
-
-
-                //clear the JTable selection
-                containerTable.clearSelection();
-                selectedContainer = -1;
+                resetContainerForm();
 
                 //TODO unselect JTable if needed
                 //TODO re-enable Add button if needed
@@ -466,60 +368,18 @@ public class GUI extends JFrame {
         addMovieButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //get from fields
-                String name = movieTitleTextField.getText();
-                String format = movieFormatTextField.getText();
-                Container container = (Container) movieContainerComboBox.getSelectedItem();
-                int containerID = container.containerID;
-                String genre = movieGenreTextField.getText();
-                String langStr = movieLangTextField.getText();
-                char[] language = new char[2];
-                //TODO convert to char[2];
-                String yearStr = movieYearTextField.getText();
-                int year = -1;
-                String rating = movieRatingTextField.getText();
 
-                //validate these
-                if (! testStringNotNull(name, "movie name")) return;
-                if (!langStr.isEmpty()) {
-                    if (! testIsChar2(langStr)) {
-                        return;
-                    } else {
-                        language = toChar2(langStr);
-                    }
-                }
-                if (!yearStr.isEmpty()){
-                    //TODO check for years < 1888 and error
-                    year = Integer.parseInt(yearStr);
-                }
+                //Build Movie from form fields
+                Movie newMovie = movieFormToObject();
 
-                //Construct new Movie object
-                Movie newMovie = new Movie(name);
-                //assign attributes if define
-                if(format != null) newMovie.format = format;
-                newMovie.containerID = containerID;
-                if(genre != null) newMovie.genre = genre;
-                if(language != null) newMovie.language = language;
-                if(year > -1) newMovie.year = year;
-                if(rating != null) newMovie.rating = rating;
+                //Abort if form data is not usable
+                if (newMovie.name.equals("ERRORVOID")) return;
 
                 //add the Movie to the database
                 controller.addMovie(newMovie);
 
-                //clear the JTable selection
-                movieTable.clearSelection();
-
-                //clear the input fields
-                movieTitleTextField.setText("");
-                movieFormatTextField.setText("");
-                movieGenreTextField.setText("");
-                movieLangTextField.setText("");
-                movieYearTextField.setText("");
-                movieRatingTextField.setText("");
-
-                //reset the combo box
-                //movieContainerComboBox.setSelectedIndex(0);
-                //actually, don't. Leave it where it was so we can add more titles to the same container
+                //Clear the form
+                resetMovieForm();
 
                 //refresh to reflect the changes
                 Vector<Movie> allMovies = controller.getAllMovies();
@@ -528,22 +388,40 @@ public class GUI extends JFrame {
 
             }
         });
+
         updateMovieButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO implement
+                if (selectedMovie == -1){
+                    //we should not be able to get here once button disabling logic is in place
+                    return;
+                }
+
+                //Build a Movie from the form fields
+                Movie newMovie = movieFormToObject();
+
+                //Abort if form data is not usable
+                if (newMovie.name.equals("ERRORVOID")) return;
+
+                //update the Movie in the database
+                //selectedMovie should have been set by ListSelectionListener
+                controller.updateMovie(selectedMovie, newMovie);
+
+                resetMovieForm();
+
+                //refresh to reflect the changes
+                Vector<Movie> allMovies = controller.getAllMovies();
+                setMovieListData(allMovies);
 
             }
         });
         clearMovieButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO implement
-
+                resetMovieForm();
             }
         });
     }
-
 
 
     //*** Listeners for TV Show tab ***
@@ -656,5 +534,136 @@ public class GUI extends JFrame {
         return outChars;
     }
 
+    // common code for container add and update
+    private Container containerFormToObject() {
+        //get from fields
+        String name = containerNameTextField.getText();
+        String barcodeStr = barCodeTextField.getText();
+        Long barcode = null;
+        Location location = (Location) containerLocationComboBox.getSelectedItem();
+        int locID = location.locationID;
+        //TODO something with date
+        Borrower borrower = (Borrower) containerBorrowerComboBox.getSelectedItem();
+        int brwID = borrower.borrowerID;
+        boolean sell = sellCheckBox.isSelected();
+        boolean sold = soldCheckBox.isSelected();
+
+        //validate these -- return a blank Container with name ERRORVOID if there's a problem
+        if (! testStringNotNull(name,"product name")) {
+            return new Container("ERRORVOID");
+        }
+        if (!barcodeStr.isEmpty()) {
+            if (! testIsPositiveLong(barcodeStr)) {
+                return new Container("ERRORVOID");
+            } else {
+                //TODO really, should parse to legit barcode
+                barcode = Long.parseLong(barcodeStr);
+            }
+        }
+        //assert barcode >= 0;
+        //shouldn't need to validate Location, it came from ComboBox
+        //shouldn't need to validate Borrower, it came from ComboBox
+        //TODO validate date?
+
+        //Date placeholderDate = (Date) new java.util.Date();
+
+        //shouldn't need to validate the checkboxes
+
+        //construct a new Container object
+        Container newContainer = new Container(name);
+        //assign attributes if defined
+        //TODO ifdefined checks
+        if(barcode != null) newContainer.barcode = barcode;
+        newContainer.locationID = locID;  //database enforces this field, not optional
+        //newContainer.purchaseDate = placeholderDate;
+        newContainer.borrowerID = brwID;
+        newContainer.sell = sell;
+        newContainer.sold = sold;
+
+        return newContainer;
+    }
+
+
+    // common method for container form
+    private void resetContainerForm(){
+        //clear the JTable selection
+        containerTable.clearSelection();
+        selectedContainer = -1;
+
+        //clear the input JTextFields
+        containerNameTextField.setText("");
+        barCodeTextField.setText("");
+        sellCheckBox.setSelected(false);
+        soldCheckBox.setSelected(false);
+
+        //reset the combo boxes
+        containerLocationComboBox.setSelectedIndex(0);
+        containerBorrowerComboBox.setSelectedIndex(0);
+
+
+    }
+
+    //common to movie add and update
+    private Movie movieFormToObject() {
+        //get from fields
+        String name = movieTitleTextField.getText();
+        String format = movieFormatTextField.getText();
+        Container container = (Container) movieContainerComboBox.getSelectedItem();
+        int containerID = container.containerID;
+        String genre = movieGenreTextField.getText();
+        String langStr = movieLangTextField.getText();
+        char[] language = new char[2];
+        //TODO convert to char[2];
+        String yearStr = movieYearTextField.getText();
+        int year = -1;
+        String rating = movieRatingTextField.getText();
+
+        //validate these
+        if (! testStringNotNull(name, "movie name")) {
+            return new Movie("ERRORVOID");
+        }
+        if (!langStr.isEmpty()) {
+            if (! testIsChar2(langStr)) {
+                return new Movie("ERRORVOID");
+            } else {
+                language = toChar2(langStr);
+            }
+        }
+        if (!yearStr.isEmpty()){
+            //TODO check for years < 1888 and error
+            year = Integer.parseInt(yearStr);
+        }
+
+        //Construct new Movie object
+        Movie newMovie = new Movie(name);
+        //assign attributes if defined
+        if(format != null) newMovie.format = format;
+        newMovie.containerID = containerID;
+        if(genre != null) newMovie.genre = genre;
+        if(language != null) newMovie.language = language;
+        if(year > -1) newMovie.year = year;
+        if(rating != null) newMovie.rating = rating;
+
+        return newMovie;
+    }
+
+    private void resetMovieForm(){
+        //clear the JTable selection
+        movieTable.clearSelection();
+        selectedMovie = -1;
+
+        //clear the input fields
+        movieTitleTextField.setText("");
+        movieFormatTextField.setText("");
+        movieGenreTextField.setText("");
+        movieLangTextField.setText("");
+        movieYearTextField.setText("");
+        movieRatingTextField.setText("");
+
+        //reset the combo box
+        //movieContainerComboBox.setSelectedIndex(0);
+        //actually, don't. Leave it where it was so we can add more titles to the same container
+
+    }
 
 }

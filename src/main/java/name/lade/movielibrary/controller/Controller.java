@@ -88,7 +88,7 @@ public class Controller {
         db.updateContainer(currentID, container);
     }
 
-    void updateMovie(int currentID, Movie movie) {
+    public void updateMovie(int currentID, Movie movie) {
         db.updateMovie(currentID, movie);
     }
 

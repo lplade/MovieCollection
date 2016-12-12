@@ -33,7 +33,7 @@ public class TVTableModel extends AbstractTableModel {
         this.allShows = shows;
     }
 
-    void updateData(Vector<TVShow> updatedShows) {
+    public void updateData(Vector<TVShow> updatedShows) {
         //completely replace data in table fresh DB data
         this.allShows = updatedShows;
         fireTableDataChanged();

@@ -31,7 +31,6 @@ public class GUI extends JFrame {
     private JButton newShelfItemButton;
     private JButton updateContainerButton;
     private JButton containerDeleteButton;
-    private JTextField nameTextField;
     private JTextField barCodeTextField;
     private JComboBox<Location> containerLocationComboBox;
     private JComboBox<Integer> pDateYYYYComboBox;
@@ -64,8 +63,8 @@ public class GUI extends JFrame {
     private JTextField tvShowYearTextBox;
     private JTextField tvShowRatingTextBox;
     private JComboBox<Borrower> containerBorrowerComboBox;
-    private JButton deleteButton1;
-    private JButton deleteButton2;
+    private JButton movieDeleteButton;
+    private JButton tvShowDeleteButton;
 
     //https://docs.oracle.com/javase/tutorial/uiswing/components/tabbedpane.html
     //https://docs.oracle.com/javase/tutorial/uiswing/components/toolbar.html
@@ -77,7 +76,9 @@ public class GUI extends JFrame {
 
     private Controller controller;
 
-    private int selectedRecord;
+    private int selectedContainer;
+    private int selectedMovie;
+    private int selectedTVShow;
 
     private Log log = new Log();
 
@@ -100,7 +101,9 @@ public class GUI extends JFrame {
         //hide some columns?
         //http://stackoverflow.com/questions/1492217/how-to-make-a-columns-in-jtable-invisible-for-swing-java
 
-        selectedRecord = -1 ; //this means no record is selected
+        selectedContainer = -1 ; //this means no record is selected
+        selectedMovie = -1;
+        selectedTVShow = -1;
 
         //populate the ComboBoxes
         configureLocationComboBox(containerLocationComboBox);
@@ -187,7 +190,7 @@ public class GUI extends JFrame {
                     Container container = containerTM.getRow(row);
 
                     //display contents of that Container
-                    nameTextField.setText(container.name);
+                    movieTitleTextField.setText(container.name);
                     barCodeTextField.setText(String.valueOf(container.barcode));
                     Location loc = controller.getLocationByID(container.locationID); //query Location...
                     containerLocationComboBox.setSelectedItem(loc);                  //...and update the ComboBox
@@ -208,7 +211,7 @@ public class GUI extends JFrame {
                         id = -1;
                     }
 
-                    selectedRecord = id;
+                    selectedContainer = id;
 
                     //leave these there until the user updates
 
@@ -236,7 +239,7 @@ public class GUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //get from fields
-                String name = nameTextField.getText();
+                String name = movieTitleTextField.getText();
                 String barcodeStr = barCodeTextField.getText();
                 Long barcode = null;
                 Location location = (Location) containerLocationComboBox.getSelectedItem();
@@ -284,7 +287,7 @@ public class GUI extends JFrame {
                 containerTable.clearSelection();
 
                 //clear the input JTextFields
-                nameTextField.setText("");
+                movieTitleTextField.setText("");
                 barCodeTextField.setText("");
                 sellCheckBox.setSelected(false);
                 soldCheckBox.setSelected(false);
@@ -303,13 +306,13 @@ public class GUI extends JFrame {
         updateContainerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (selectedRecord == -1) {
+                if (selectedContainer == -1) {
                     //we should not be able to get here once the button disabling logic is in place
                     return;
                 }
 
                 //get from fields
-                String name = nameTextField.getText();
+                String name = movieTitleTextField.getText();
                 String barcodeStr = barCodeTextField.getText();
                 Long barcode = null;
                 Location location = (Location) containerLocationComboBox.getSelectedItem();
@@ -351,14 +354,14 @@ public class GUI extends JFrame {
                 newContainer.sold = sold;
 
                 //update the Container in the database
-                //selectedRecord = .containerID selected, should have been set by ListSelectionListener
-                controller.updateContainer(selectedRecord, newContainer);
+                //selectedContainer = .containerID selected, should have been set by ListSelectionListener
+                controller.updateContainer(selectedContainer, newContainer);
 
                 //clear the JTable selection
                 containerTable.clearSelection();
 
                 //clear the input JTextFields
-                nameTextField.setText("");
+                movieTitleTextField.setText("");
                 barCodeTextField.setText("");
                 sellCheckBox.setSelected(false);
                 soldCheckBox.setSelected(false);
@@ -378,7 +381,7 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 //reset all form fields
-                nameTextField.setText("");
+                movieTitleTextField.setText("");
                 barCodeTextField.setText("");
                 sellCheckBox.setSelected(false);
                 soldCheckBox.setSelected(false);
@@ -388,7 +391,7 @@ public class GUI extends JFrame {
 
                 //clear the JTable selection
                 containerTable.clearSelection();
-                selectedRecord = -1;
+                selectedContainer = -1;
 
                 //TODO unselect JTable if needed
                 //TODO re-enable Add button if needed
@@ -419,29 +422,29 @@ public class GUI extends JFrame {
                     MovieTableModel movieTM = (MovieTableModel) movieTable.getModel();
                     Movie movie = movieTM.getRow(row);
 
-                    //display contents of that Container
-                    nameTextField.setText(movie.name);
-                    barCodeTextField.setText(String.valueOf(movie.barcode));
-                    Location loc = controller.getLocationByID(movie.locationID); //query Location...
-                    containerLocationComboBox.setSelectedItem(loc);                  //...and update the ComboBox
-                    Borrower brw = controller.getBorrowerByID(movie.borrowerID);
-                    containerBorrowerComboBox.setSelectedItem(brw);
-                    //TODO parse date into YYY, MM, and DD -OR- set up date picker
-                    sellCheckBox.setSelected(movie.sell);
-                    soldCheckBox.setSelected(movie.sold);
+                    //display contents of that Movie
+                    movieTitleTextField.setText(movie.name);
+                    movieFormatTextField.setText(movie.format);
+                    Container cont = (Container) movieContainerComboBox.getSelectedItem();
+                    movieContainerComboBox.setSelectedItem(cont);
+                    movieGenreTextField.setText(movie.genre);
+                    movieLangTextField.setText(movie.getLanguageStr());
+                    movieYearTextField.setText(String.valueOf(movie.year));
+                    movieRatingTextField.setText(String.valueOf(movie.rating));
+
 
                     //update the index records
                     int id;
                     try {
-                        id = movie.containerID;
-                        log.debug("Selected ContainerID = " + id);
+                        id = movie.titleID;
+                        log.debug("Selected MovieID = " + id);
                     } catch (ArrayIndexOutOfBoundsException oobe) {
                         //when we clear the selection, the listener fires and returns an invalid value here
                         log.debug("list selection OOB (this is not a problem)");
                         id = -1;
                     }
 
-                    selectedRecord = id;
+                    selectedMovie = id;
 
                     //leave these there until the user updates
 
@@ -500,11 +503,11 @@ public class GUI extends JFrame {
     }
 
     public void setMovieListData(Vector<Movie> allMovies) {
-        //TODO set up
+        movieTM.updateData(allMovies);
     }
 
     public void setTVShowListData(Vector<TVShow> allShows) {
-        //TODO set up
+        tvshowTM.updateData(allShows);
     }
 
 

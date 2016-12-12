@@ -34,7 +34,7 @@ public class MovieTableModel extends AbstractTableModel {
         this.allMovies = movies;
     }
 
-    void updateData(Vector<Movie> updatedMovies) {
+    public void updateData(Vector<Movie> updatedMovies) {
         //completely replace data in table fresh DB data
         this.allMovies = updatedMovies;
         fireTableDataChanged();

@@ -30,7 +30,7 @@ public class GUI extends JFrame {
     private JToolBar mainJToolBar;
     private JButton newShelfItemButton;
     private JButton updateContainerButton;
-    private JButton deleteButton;
+    private JButton containerDeleteButton;
     private JTextField nameTextField;
     private JTextField barCodeTextField;
     private JComboBox<Location> containerLocationComboBox;
@@ -64,6 +64,8 @@ public class GUI extends JFrame {
     private JTextField tvShowYearTextBox;
     private JTextField tvShowRatingTextBox;
     private JComboBox<Borrower> containerBorrowerComboBox;
+    private JButton deleteButton1;
+    private JButton deleteButton2;
 
     //https://docs.oracle.com/javase/tutorial/uiswing/components/tabbedpane.html
     //https://docs.oracle.com/javase/tutorial/uiswing/components/toolbar.html
@@ -105,6 +107,8 @@ public class GUI extends JFrame {
         configureBorrowerComboBox(containerBorrowerComboBox);
         configureContainerComboBox(movieContainerComboBox);
         configureContainerComboBox(tvShowContainerComboBox);
+
+        //TODO set up a JToolbar and modal dialogs instead of all-in-one form/table
 
         //set up listeners
         addListeners();
@@ -262,9 +266,8 @@ public class GUI extends JFrame {
 
                 //shouldn't need to validate the checkboxes
 
-
                 //construct a new Container object
-                name.lade.movielibrary.model.Container newContainer = new Container(name);
+                Container newContainer = new Container(name);
                 //assign attributes if defined
                 //TODO ifdefined checks
                 if(barcode != null) newContainer.barcode = barcode;
@@ -274,7 +277,7 @@ public class GUI extends JFrame {
                 newContainer.sell = sell;
                 newContainer.sold = sold;
 
-                //update the Container in the database
+                //add the Container to the database
                 controller.addContainerToDatabase(newContainer);
 
                 //clear the JTable selection
@@ -300,7 +303,73 @@ public class GUI extends JFrame {
         updateContainerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO implement
+                if (selectedRecord == -1) {
+                    //we should not be able to get here once the button disabling logic is in place
+                    return;
+                }
+
+                //get from fields
+                String name = nameTextField.getText();
+                String barcodeStr = barCodeTextField.getText();
+                Long barcode = null;
+                Location location = (Location) containerLocationComboBox.getSelectedItem();
+                int locID = location.locationID;
+                //TODO something with date
+                Borrower borrower = (Borrower) containerBorrowerComboBox.getSelectedItem();
+                int brwID = borrower.borrowerID;
+                boolean sell = sellCheckBox.isSelected();
+                boolean sold = soldCheckBox.isSelected();
+
+                //validate these
+                if (! testStringNotNull(name,"product name")) return;
+                if (!barcodeStr.isEmpty()) {
+                    if (! testIsPositiveLong(barcodeStr)) {
+                        return;
+                    } else {
+                        //TODO really, should parse to legit barcode
+                        barcode = Long.parseLong(barcodeStr);
+                    }
+                }
+                //assert barcode >= 0;
+                //shouldn't need to validate Location, it came from ComboBox
+                //shouldn't need to validate Borrower, it came from ComboBox
+                //TODO validate date?
+
+                //Date placeholderDate = (Date) new java.util.Date();
+
+                //shouldn't need to validate the checkboxes
+
+                //construct a new Container object
+                Container newContainer = new Container(name);
+                //assign attributes if defined
+                //TODO ifdefined checks
+                if(barcode != null) newContainer.barcode = barcode;
+                newContainer.locationID = locID;  //database enforces this field, not optional
+                //newContainer.purchaseDate = placeholderDate;
+                newContainer.borrowerID = brwID;
+                newContainer.sell = sell;
+                newContainer.sold = sold;
+
+                //update the Container in the database
+                //selectedRecord = .containerID selected, should have been set by ListSelectionListener
+                controller.updateContainer(selectedRecord, newContainer);
+
+                //clear the JTable selection
+                containerTable.clearSelection();
+
+                //clear the input JTextFields
+                nameTextField.setText("");
+                barCodeTextField.setText("");
+                sellCheckBox.setSelected(false);
+                soldCheckBox.setSelected(false);
+
+                //reset the combo boxes
+                containerLocationComboBox.setSelectedIndex(0);
+                containerBorrowerComboBox.setSelectedIndex(0);
+
+                //refresh to reflect the changes
+                Vector<Container> allContainers = controller.getAllContainers();
+                setContainerListData(allContainers);
             }
         });
 
@@ -333,6 +402,55 @@ public class GUI extends JFrame {
 
     //Listeners for Movie tab
     private void addMovieTabListeners() {
+        //watch if user selects a row
+        //http://stackoverflow.com/questions/10128064/jtable-selected-row-click-event
+        movieTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                //first make sure item is not out of bounds
+                //listener fires when clearSelection() fires and causes oobe error is not tested
+                //http://stackoverflow.com/questions/13102246/remove-the-selection-from-a-jlist-in-java-swing
+                if (!e.getValueIsAdjusting() && movieTable.getSelectedRow() >= 0){
+
+                    log.debug("Selected row = " + movieTable.getSelectedRow());
+
+                    //re-get the model object so we can use .getRow() method
+                    int row = movieTable.getSelectedRow();
+                    MovieTableModel movieTM = (MovieTableModel) movieTable.getModel();
+                    Movie movie = movieTM.getRow(row);
+
+                    //display contents of that Container
+                    nameTextField.setText(movie.name);
+                    barCodeTextField.setText(String.valueOf(movie.barcode));
+                    Location loc = controller.getLocationByID(movie.locationID); //query Location...
+                    containerLocationComboBox.setSelectedItem(loc);                  //...and update the ComboBox
+                    Borrower brw = controller.getBorrowerByID(movie.borrowerID);
+                    containerBorrowerComboBox.setSelectedItem(brw);
+                    //TODO parse date into YYY, MM, and DD -OR- set up date picker
+                    sellCheckBox.setSelected(movie.sell);
+                    soldCheckBox.setSelected(movie.sold);
+
+                    //update the index records
+                    int id;
+                    try {
+                        id = movie.containerID;
+                        log.debug("Selected ContainerID = " + id);
+                    } catch (ArrayIndexOutOfBoundsException oobe) {
+                        //when we clear the selection, the listener fires and returns an invalid value here
+                        log.debug("list selection OOB (this is not a problem)");
+                        id = -1;
+                    }
+
+                    selectedRecord = id;
+
+                    //leave these there until the user updates
+
+                    //TODO toggle availability of GUI items
+
+                }
+            }
+        });
+
         addMovieButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

@@ -80,8 +80,9 @@ public class MovieTableModel extends AbstractTableModel {
         }
     }
 
-    Movie getMovieAtRow(int rowIndex){
-        return allMovies.get(rowIndex);
+
+    public Movie getRow(int row){
+        return allMovies.get(row);
     }
 
     @Override

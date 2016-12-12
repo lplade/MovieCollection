@@ -84,7 +84,7 @@ public class Controller {
         assert tvShow.containerID > -1;
         db.addTVShow(tvShow);
     }
-    void updateContainer(int currentID, Container container){
+    public void updateContainer(int currentID, Container container){
         db.updateContainer(currentID, container);
     }
 

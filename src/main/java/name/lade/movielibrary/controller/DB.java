@@ -381,7 +381,7 @@ class DB {
                     "UPDATE Movie " +
                     "SET Year = ?, " +
                         "Rating = ?, " +
-                        "Cut = ?" +
+                        "Cut = ? " +
                     "WHERE TitleID = ?";
             updatePS = conn.prepareStatement(updateMovieStr);
             updatePS.setInt(1, movie.year);

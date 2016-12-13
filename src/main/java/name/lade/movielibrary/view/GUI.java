@@ -5,6 +5,7 @@ import name.lade.movielibrary.controller.*;
 import name.lade.movielibrary.model.*;
 import name.lade.movielibrary.model.Container;
 
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -13,6 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Vector;
 
 /**
@@ -34,9 +37,6 @@ public class GUI extends JFrame {
     private JTextField containerNameTextField;
     private JTextField barCodeTextField;
     private JComboBox<Location> containerLocationComboBox;
-    private JComboBox<Integer> pDateYYYYComboBox;
-    private JComboBox<Integer> pDateMMComboBox;
-    private JComboBox<Integer> pDateDDComboBox;
     private JCheckBox sellCheckBox;
     private JCheckBox soldCheckBox;
     private JButton clearContainerButton;
@@ -66,6 +66,7 @@ public class GUI extends JFrame {
     private JComboBox<Borrower> containerBorrowerComboBox;
     private JButton movieDeleteButton;
     private JButton tvShowDeleteButton;
+    private JSpinner containerDateSpinner;
 
     //https://docs.oracle.com/javase/tutorial/uiswing/components/tabbedpane.html
     //https://docs.oracle.com/javase/tutorial/uiswing/components/toolbar.html
@@ -74,6 +75,8 @@ public class GUI extends JFrame {
     private ContainerTableModel containerTM;
     private MovieTableModel movieTM;
     private TVTableModel tvshowTM;
+
+    private SpinnerDateModel containerDM;
 
     private Controller controller;
 
@@ -88,6 +91,7 @@ public class GUI extends JFrame {
         setContentPane(rootPanel);
         setPreferredSize(new Dimension(800, 600));
 
+
         //map the controller
         this.controller = controller;
 
@@ -98,6 +102,17 @@ public class GUI extends JFrame {
         containerTable.setModel(containerTM);
         movieTable.setModel(movieTM);
         tvTable.setModel(tvshowTM);
+
+        containerDM = new SpinnerDateModel(
+                new java.util.Date(), //default to today
+                null,
+                null,
+                Calendar.DAY_OF_MONTH
+        );
+        containerDateSpinner.setModel(containerDM);
+        containerDateSpinner.setEditor(new JSpinner.DateEditor(containerDateSpinner, "yyyy MMM dd"));
+
+
 
         //hide some columns?
         //http://stackoverflow.com/questions/1492217/how-to-make-a-columns-in-jtable-invisible-for-swing-java
@@ -123,7 +138,6 @@ public class GUI extends JFrame {
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
-
 
     }
 
@@ -198,7 +212,7 @@ public class GUI extends JFrame {
                     containerLocationComboBox.setSelectedItem(loc);                  //...and update the ComboBox
                     Borrower brw = controller.getBorrowerByID(container.borrowerID);
                     containerBorrowerComboBox.setSelectedItem(brw);
-                    //TODO parse date into YYY, MM, and DD -OR- set up date picker
+                    containerDM.setValue(container.purchaseDate);
                     sellCheckBox.setSelected(container.sell);
                     soldCheckBox.setSelected(container.sold);
 
@@ -626,7 +640,8 @@ public class GUI extends JFrame {
         Long barcode = null;
         Location location = (Location) containerLocationComboBox.getSelectedItem();
         int locID = location.locationID;
-        //TODO something with date
+        Date utilDate = containerDM.getDate();
+        java.sql.Date sDate = utilDateToSQLDate(utilDate);
         Borrower borrower = (Borrower) containerBorrowerComboBox.getSelectedItem();
         int brwID = borrower.borrowerID;
         boolean sell = sellCheckBox.isSelected();
@@ -659,7 +674,7 @@ public class GUI extends JFrame {
         //TODO ifdefined checks
         if(barcode != null) newContainer.barcode = barcode;
         newContainer.locationID = locID;  //database enforces this field, not optional
-        //newContainer.purchaseDate = placeholderDate;
+        newContainer.purchaseDate = sDate;
         newContainer.borrowerID = brwID;
         newContainer.sell = sell;
         newContainer.sold = sold;
@@ -683,6 +698,8 @@ public class GUI extends JFrame {
         //reset the combo boxes
         containerLocationComboBox.setSelectedIndex(0);
         containerBorrowerComboBox.setSelectedIndex(0);
+
+        containerDM.setValue(new java.util.Date());
 
 
     }
@@ -810,6 +827,11 @@ public class GUI extends JFrame {
         //tvShowContainerComboBox.setSelectedIndex(0)
         //don't though, so we can enter multiple shows in a box
 
+    }
+
+    //https://examples.javacodegeeks.com/core-java/util/date/java-util-date-to-java-sql-date/
+    private java.sql.Date utilDateToSQLDate(java.util.Date uDate) {
+        return new java.sql.Date(uDate.getTime());
     }
 
 }

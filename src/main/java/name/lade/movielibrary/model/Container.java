@@ -13,6 +13,8 @@ import java.sql.Date;
  * In case of VOD services, this will be the name of the entry in the library
  */
 
+//TODO find another name for Container so it doesn't conflict with AWT Container!!!
+
 //TODO re-write everything to store Container, Location, and Borrower instead of indexes
     //populate these during SQL retrieval
     //will let us have more control over how fields in ContainerTableModel are returned

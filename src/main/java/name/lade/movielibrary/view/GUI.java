@@ -5,15 +5,11 @@ import name.lade.movielibrary.controller.*;
 import name.lade.movielibrary.model.*;
 import name.lade.movielibrary.model.Container;
 
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
@@ -21,7 +17,9 @@ import java.util.Vector;
 /**
  * GUI.java
  *
+ * This is an all-in-one GUI frontend for the controller
  *
+ * Should be split into a main list, and a series of modal dialogs to get data
  *
  */
 public class GUI extends JFrame {
@@ -68,6 +66,7 @@ public class GUI extends JFrame {
     private JButton tvShowDeleteButton;
     private JSpinner containerDateSpinner;
 
+    //TODO toolbar
     //https://docs.oracle.com/javase/tutorial/uiswing/components/tabbedpane.html
     //https://docs.oracle.com/javase/tutorial/uiswing/components/toolbar.html
     //http://www.oracle.com/technetwork/java/index-138612.html
@@ -77,6 +76,10 @@ public class GUI extends JFrame {
     private TVTableModel tvshowTM;
 
     private SpinnerDateModel containerDM;
+
+    private DefaultComboBoxModel<Location> containerLocationCBM;
+    private DefaultComboBoxModel<Borrower> containerBorrowerCBM;
+    private DefaultComboBoxModel<Container> titleContainerCBM; //one model for both
 
     private Controller controller;
 
@@ -91,14 +94,13 @@ public class GUI extends JFrame {
         setContentPane(rootPanel);
         setPreferredSize(new Dimension(800, 600));
 
-
         //map the controller
         this.controller = controller;
 
         //set up the models
-        containerTM = new ContainerTableModel(controller.allContainers);
-        movieTM = new MovieTableModel(controller.allMovies);
-        tvshowTM = new TVTableModel(controller.allShows);
+        containerTM = new ContainerTableModel(controller.getAllContainers());
+        movieTM = new MovieTableModel(controller.getAllMovies());
+        tvshowTM = new TVTableModel(controller.getAllShows());
         containerTable.setModel(containerTM);
         movieTable.setModel(movieTM);
         tvTable.setModel(tvshowTM);
@@ -112,7 +114,13 @@ public class GUI extends JFrame {
         containerDateSpinner.setModel(containerDM);
         containerDateSpinner.setEditor(new JSpinner.DateEditor(containerDateSpinner, "yyyy MMM dd"));
 
-
+        containerLocationCBM = new DefaultComboBoxModel<Location>();
+        containerBorrowerCBM = new DefaultComboBoxModel<Borrower>();
+        titleContainerCBM = new DefaultComboBoxModel<Container>();
+        containerLocationComboBox.setModel(containerLocationCBM);
+        containerBorrowerComboBox.setModel(containerBorrowerCBM);
+        movieContainerComboBox.setModel(titleContainerCBM);
+        tvShowContainerComboBox.setModel(titleContainerCBM);
 
         //hide some columns?
         //http://stackoverflow.com/questions/1492217/how-to-make-a-columns-in-jtable-invisible-for-swing-java
@@ -122,10 +130,10 @@ public class GUI extends JFrame {
         selectedTVShow = -1;
 
         //populate the ComboBoxes
-        configureLocationComboBox(containerLocationComboBox);
-        configureBorrowerComboBox(containerBorrowerComboBox);
-        configureContainerComboBox(movieContainerComboBox);
-        configureContainerComboBox(tvShowContainerComboBox);
+;
+        configureLocationComboBox(containerLocationCBM);
+        configureBorrowerComboBox(containerBorrowerCBM);
+        configureContainerComboBox(titleContainerCBM);
 
         //TODO set up a JToolbar and modal dialogs instead of all-in-one form/table
 
@@ -142,25 +150,30 @@ public class GUI extends JFrame {
 
     }
 
+    //TODO do we really NEED a version for each of three signatures?
+
     //Populates a Borrower combo box tab with Borrowers
-    private void configureBorrowerComboBox(JComboBox<Borrower> comboBox) {
-        for (Borrower borrower : controller.allBorrowers) {
-            comboBox.addItem(borrower);
+    private void configureBorrowerComboBox(DefaultComboBoxModel<Borrower> cbm) {
+        //cbm.removeAllElements();
+        for (Borrower borrower : controller.getAllBorrowers()) {
+            cbm.addElement(borrower);
         }
     }
 
     //Populates a Location combo box tab with Locations
-    private void configureLocationComboBox(JComboBox<Location> comboBox) {
-        for (Location location : controller.allLocations) {
-            comboBox.addItem(location);
+    private void configureLocationComboBox(DefaultComboBoxModel<Location> cbm) {
+        //cbm.removeAllElements();
+        for (Location location : controller.getAllLocations()) {
+            cbm.addElement(location);
         }
 
     }
 
     //Populates a Container combo bow with Containers
-    private void configureContainerComboBox(JComboBox<Container> comboBox) {
-        for (Container container : controller.allContainers) {
-            comboBox.addItem(container);
+    private void configureContainerComboBox(DefaultComboBoxModel<Container> cbm) {
+        //cbm.removeAllElements();
+        for (Container container : controller.getAllContainers()) {
+            cbm.addElement(container);
         }
     }
 
@@ -238,19 +251,6 @@ public class GUI extends JFrame {
             }
         });
 
-        containerLocationComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //TODO do stuff?
-            }
-        });
-
-        containerBorrowerComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //TODO do stuff?
-            }
-        });
 
         addContainerButton.addActionListener(new ActionListener() {
             @Override
@@ -272,7 +272,11 @@ public class GUI extends JFrame {
                 Vector<Container> allContainers = controller.getAllContainers();
                 setContainerListData(allContainers);
 
-                //TODO update the ComboBox models too
+                //refresh the Container list on the other forms
+                DefaultComboBoxModel<Container> titleContainerCBM = new DefaultComboBoxModel<>();
+                configureContainerComboBox(titleContainerCBM);
+                movieContainerComboBox.setModel(titleContainerCBM);
+                tvShowContainerComboBox.setModel(titleContainerCBM);
 
             }
         });
@@ -302,7 +306,11 @@ public class GUI extends JFrame {
                 Vector<Container> allContainers = controller.getAllContainers();
                 setContainerListData(allContainers);
 
-                //TODO update the ComboBox models too
+                //refresh the Container list on the other forms
+                DefaultComboBoxModel<Container> titleContainerCBM = new DefaultComboBoxModel<Container>();
+                configureContainerComboBox(titleContainerCBM);
+                movieContainerComboBox.setModel(titleContainerCBM);
+                tvShowContainerComboBox.setModel(titleContainerCBM);
             }
         });
 
@@ -352,7 +360,12 @@ public class GUI extends JFrame {
                 Vector<TVShow> allTVShows = controller.getAllShows();
                 setTVShowListData(allTVShows);
 
-                //TODO update the ComboBox models too
+                //update container list on other forms
+                DefaultComboBoxModel<Container> titleContainerCBM = new DefaultComboBoxModel<>();
+                configureContainerComboBox(titleContainerCBM);
+                movieContainerComboBox.setModel(titleContainerCBM);
+                tvShowContainerComboBox.setModel(titleContainerCBM);
+
 
             }
         });
@@ -411,12 +424,7 @@ public class GUI extends JFrame {
             }
         });
 
-        movieContainerComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //TODO do stuff?
-            }
-        });
+
 
         addMovieButton.addActionListener(new ActionListener() {
             @Override

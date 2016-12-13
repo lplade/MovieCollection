@@ -16,11 +16,6 @@ public class Controller {
 
     private static GUI gui;
     private static DB db;
-    public Vector<Container> allContainers;
-    public Vector<Movie> allMovies;
-    public Vector<TVShow> allShows;
-    public Vector<Location> allLocations;
-    public Vector<Borrower> allBorrowers;
 
     public static void main(String[] args) {
         Controller controller = new Controller();
@@ -37,11 +32,11 @@ public class Controller {
         db.initLocation();
 
         //query the database to create the collections we need
-        allLocations = getAllLocations();
-        allBorrowers = getAllBorrowers();
-        allContainers = getAllContainers();
-        allMovies = getAllMovies();
-        allShows = getAllShows();
+        Vector<Location> allLocations = getAllLocations();
+        Vector<Borrower> allBorrowers = getAllBorrowers();
+        Vector<Container> allContainers = getAllContainers();
+        Vector<Movie> allMovies = getAllMovies();
+        Vector<TVShow> allShows = getAllShows();
 
         gui = new GUI(this);
 

@@ -65,8 +65,6 @@ public class MovieTableModel extends AbstractTableModel {
             case 4: // Genre
                 return allMovies.get(rowIndex).genre;
             case 5: // Language
-                //TODO some kind of lookup table for long string?
-                //this returns a memory reference for the char[2] :(
                 return allMovies.get(rowIndex).getLanguageStr();
             case 6: // Year
                 return allMovies.get(rowIndex).year;

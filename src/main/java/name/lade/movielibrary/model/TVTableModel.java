@@ -64,9 +64,7 @@ public class TVTableModel extends AbstractTableModel {
             case 4: // Genre
                 return allShows.get(rowIndex).genre;
             case 5: // Language
-                //TODO some kind of lookup table for long string?
-                //this returns a char[2]
-                return allShows.get(rowIndex).language;
+                return allShows.get(rowIndex).getLanguageStr();
             case 6: // Season
                 return allShows.get(rowIndex).season;
             case 7: // Rating

@@ -77,10 +77,6 @@ public class GUI extends JFrame {
 
     private SpinnerDateModel containerDM;
 
-    private DefaultComboBoxModel<Location> containerLocationCBM;
-    private DefaultComboBoxModel<Borrower> containerBorrowerCBM;
-    private DefaultComboBoxModel<Container> titleContainerCBM; //one model for both
-
     private Controller controller;
 
     private int selectedContainer;
@@ -114,9 +110,9 @@ public class GUI extends JFrame {
         containerDateSpinner.setModel(containerDM);
         containerDateSpinner.setEditor(new JSpinner.DateEditor(containerDateSpinner, "yyyy MMM dd"));
 
-        containerLocationCBM = new DefaultComboBoxModel<Location>();
-        containerBorrowerCBM = new DefaultComboBoxModel<Borrower>();
-        titleContainerCBM = new DefaultComboBoxModel<Container>();
+        DefaultComboBoxModel<Location> containerLocationCBM = new DefaultComboBoxModel<Location>();
+        DefaultComboBoxModel<Borrower> containerBorrowerCBM = new DefaultComboBoxModel<Borrower>();
+        DefaultComboBoxModel<Container> titleContainerCBM = new DefaultComboBoxModel<Container>(); //one for both
         containerLocationComboBox.setModel(containerLocationCBM);
         containerBorrowerComboBox.setModel(containerBorrowerCBM);
         movieContainerComboBox.setModel(titleContainerCBM);
@@ -154,7 +150,7 @@ public class GUI extends JFrame {
 
     //Populates a Borrower combo box tab with Borrowers
     private void configureBorrowerComboBox(DefaultComboBoxModel<Borrower> cbm) {
-        //cbm.removeAllElements();
+        cbm.removeAllElements();
         for (Borrower borrower : controller.getAllBorrowers()) {
             cbm.addElement(borrower);
         }
@@ -162,7 +158,7 @@ public class GUI extends JFrame {
 
     //Populates a Location combo box tab with Locations
     private void configureLocationComboBox(DefaultComboBoxModel<Location> cbm) {
-        //cbm.removeAllElements();
+        cbm.removeAllElements();
         for (Location location : controller.getAllLocations()) {
             cbm.addElement(location);
         }
@@ -171,7 +167,7 @@ public class GUI extends JFrame {
 
     //Populates a Container combo bow with Containers
     private void configureContainerComboBox(DefaultComboBoxModel<Container> cbm) {
-        //cbm.removeAllElements();
+        cbm.removeAllElements();
         for (Container container : controller.getAllContainers()) {
             cbm.addElement(container);
         }
@@ -273,10 +269,13 @@ public class GUI extends JFrame {
                 setContainerListData(allContainers);
 
                 //refresh the Container list on the other forms
+                //TODO this may be overkill, may not need to completely re-initialize
                 DefaultComboBoxModel<Container> titleContainerCBM = new DefaultComboBoxModel<>();
                 configureContainerComboBox(titleContainerCBM);
                 movieContainerComboBox.setModel(titleContainerCBM);
                 tvShowContainerComboBox.setModel(titleContainerCBM);
+
+                //TODO should prompt to enter a Movie or TVShow to start the Container off
 
             }
         });

@@ -324,13 +324,13 @@ class DB {
         try (Connection conn = DriverManager.getConnection(DB_CONNECTION_URL, USER, PASSWORD)){
             String updateStr =
                     "UPDATE Container " +
-                    "SET Name = ?, " +
-                        "Barcode = ?, " +
-                        "LocationID = ?, " +
-                        "PurchaseDate = ?," +
-                        "BorrowerID = ?," +
-                        "Sell = ?," +
-                        "Sold = ?" +
+                            "SET Name = ?, " +
+                            "Barcode = ?, " +
+                            "LocationID = ?, " +
+                            "PurchaseDate = ?, " +
+                            "BorrowerID = ?, " +
+                            "Sell = ?, " +
+                            "Sold = ? " +
                     "WHERE ContainerID = ?";
             PreparedStatement updatePS = conn.prepareStatement(updateStr);
 

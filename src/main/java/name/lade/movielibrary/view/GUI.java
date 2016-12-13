@@ -139,6 +139,7 @@ public class GUI extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
 
+
     }
 
     //Populates a Borrower combo box tab with Borrowers
@@ -315,6 +316,44 @@ public class GUI extends JFrame {
                 //TODO re-enable Add button if needed
                 //TODO disable the Update button
                 //TODO disable the Delete button
+            }
+        });
+
+        containerDeleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (selectedContainer == -1) {
+                    //we should not be able to get here once the button disabling logic is in place
+                    return;
+                }
+
+                int confirm = JOptionPane.showConfirmDialog(null,
+                        "Are you sure you want to delete?",
+                        "Confirm",
+                        JOptionPane.YES_NO_OPTION
+                        );
+
+                if (confirm == JOptionPane.YES_OPTION){
+                    controller.deleteContainer(selectedContainer);
+                } else {
+                    log.debug("delete aborted");
+                }
+
+                //Clear the form once we're done
+                resetContainerForm();
+
+                //refresh to reflect the changes
+                Vector<Container> allContainers = controller.getAllContainers();
+                setContainerListData(allContainers);
+                //changes may cascade to other tables, refresh those too
+                Vector<Movie> allMovies = controller.getAllMovies();
+                setMovieListData(allMovies);
+                Vector<TVShow> allTVShows = controller.getAllShows();
+                setTVShowListData(allTVShows);
+
+                //TODO update the ComboBox models too
+
             }
         });
 

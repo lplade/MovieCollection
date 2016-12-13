@@ -97,11 +97,11 @@ public class Controller {
     }
 
     //user for either Movies or TV
-    void deleteTitle(Title title) {
+    public void deleteTitle(Title title) {
         db.deleteTitle(title);
     }
 
-    void deleteContainer(int containerID) {
+    public void deleteContainer(int containerID) {
         db.deleteContainer(containerID);
     }
 

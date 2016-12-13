@@ -80,7 +80,7 @@ public class Controller {
         db.addMovie(movie);
     }
 
-    void addTVShow(TVShow tvShow) {
+    public void addTVShow(TVShow tvShow) {
         assert tvShow.containerID > -1;
         db.addTVShow(tvShow);
     }
@@ -92,7 +92,7 @@ public class Controller {
         db.updateMovie(currentID, movie);
     }
 
-    void updateTVShow(int currentID, TVShow tvShow) {
+    public void updateTVShow(int currentID, TVShow tvShow) {
         db.updateTVShow(currentID, tvShow);
     }
 

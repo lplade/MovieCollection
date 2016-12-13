@@ -61,7 +61,7 @@ public class GUI extends JFrame {
     private JComboBox<Container> tvShowContainerComboBox;
     private JTextField tvShowGenreTextBox;
     private JTextField tvShowLangTextBox;
-    private JTextField tvShowYearTextBox;
+    private JTextField tvShowSeasonTextBox;
     private JTextField tvShowRatingTextBox;
     private JComboBox<Borrower> containerBorrowerComboBox;
     private JButton movieDeleteButton;
@@ -334,7 +334,7 @@ public class GUI extends JFrame {
                     movieGenreTextField.setText(movie.genre);
                     movieLangTextField.setText(movie.getLanguageStr());
                     movieYearTextField.setText(String.valueOf(movie.year));
-                    movieRatingTextField.setText(String.valueOf(movie.rating));
+                    movieRatingTextField.setText(movie.rating);
 
 
                     //update the index records
@@ -415,6 +415,7 @@ public class GUI extends JFrame {
 
             }
         });
+
         clearMovieButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -426,30 +427,113 @@ public class GUI extends JFrame {
 
     //*** Listeners for TV Show tab ***
     private void addTVShowTabListeners() {
+        //watch if user selects a row
+        //http://stackoverflow.com/questions/10128064/jtable-selected-row-click-event
+        tvTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                //first make sure item is not out of bounds
+                //listener fires when clearSelection() fires and causes oob error
+                //http://stackoverflow.com/questions/13102246/remove-the-selection-from-a-jlist-in-java-swing
+                if (!e.getValueIsAdjusting() && tvTable.getSelectedRow() >= 0){
+
+                    log.debug("Selected row = " + tvTable.getSelectedRow());
+
+                    //re-get the model object so we can use .getRow() method
+                    int row = tvTable.getSelectedRow();
+                    TVTableModel tvshowTM = (TVTableModel) tvTable.getModel();
+                    TVShow tvShow = tvshowTM.getRow(row);
+
+                    //display the contents of that TVShow
+                    tvShowTitleTextField.setText(tvShow.name);
+                    tvShowFormatTextField.setText(tvShow.format);
+                    Container cont = controller.getContainerByID(tvShow.containerID);
+                    tvShowContainerComboBox.setSelectedItem(cont); //TODO does this update?
+                    tvShowGenreTextBox.setText(tvShow.genre);
+                    tvShowLangTextBox.setText(tvShow.getLanguageStr());
+                    tvShowSeasonTextBox.setText(String.valueOf(tvShow.season));
+                    tvShowRatingTextBox.setText(tvShow.rating);
+
+                    //update the index records
+                    int id;
+                    try {
+                        id = tvShow.titleID;
+                        log.debug("Selected TVShowID = " + id);
+                    } catch (ArrayIndexOutOfBoundsException oobe) {
+                        //when we clear the selection, the listener fires and returns an oobe
+                        log.debug("list selection OOB (this is not a problem)");
+                        id = -1;
+                    }
+
+                    selectedTVShow = id;
+
+                    //leave these there until the user updates
+
+                    //TODO toggle availability of GUI items
+                }
+            }
+        });
 
         addTVShowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO implement
+
+                //Build TVShow from form fields
+                TVShow newShow = tvShowFormToObject();
+
+                //Abort if form data is not usable
+                if (newShow.name.equals("ERRORVOID")) return;
+
+                //add the TVShow to the database
+                controller.addTVShow(newShow);
+
+                //Clear the form
+                resetTVShowForm();
+
+                //refresh to reflect the changes
+                Vector<TVShow> allTVShows = controller.getAllShows();
+                setTVShowListData(allTVShows);
 
             }
         });
         updateTVShowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO implement
+                if (selectedMovie == -1) {
+                    //we should not be able to get here once button disabling logic is in place
+                    return;
+                }
+
+                //Build a TVShow from the form fields
+                TVShow newShow = tvShowFormToObject();
+
+                //Abort if form data is not usable
+                if (newShow.name.equals("ERRORVOID")) return;
+
+                //update the TVShow in the database
+                //selected should have been set by ListSelectionListener
+                controller.updateTVShow(selectedTVShow, newShow);
+
+                resetTVShowForm();
+
+                //refresh to reflect the changes
+                Vector<TVShow> allShows = controller.getAllShows();
+                setTVShowListData(allShows);
 
             }
         });
         clearTVShowButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO implement
+                resetTVShowForm();
 
             }
         });
 
     }
+
+
+
 
     public void setContainerListData(Vector<Container> allContainers) {
         containerTM.updateData(allContainers);
@@ -613,7 +697,6 @@ public class GUI extends JFrame {
         String genre = movieGenreTextField.getText();
         String langStr = movieLangTextField.getText();
         char[] language = new char[2];
-        //TODO convert to char[2];
         String yearStr = movieYearTextField.getText();
         int year = -1;
         String rating = movieRatingTextField.getText();
@@ -663,6 +746,69 @@ public class GUI extends JFrame {
         //reset the combo box
         //movieContainerComboBox.setSelectedIndex(0);
         //actually, don't. Leave it where it was so we can add more titles to the same container
+
+    }
+
+    //common to tvshow add and update
+    private TVShow tvShowFormToObject() {
+        //get from fields
+        String name = tvShowTitleTextField.getText();
+        String format = tvShowFormatTextField.getText();
+        Container container = (Container) movieContainerComboBox.getSelectedItem();
+        int containerID = container.containerID;
+        String genre = tvShowGenreTextBox.getText();
+        String langStr = tvShowLangTextBox.getText();
+        char[] language = new char[2];
+        String seasonStr = tvShowSeasonTextBox.getText();
+        int season = -1;
+        String rating = tvShowRatingTextBox.getText();
+
+        //validate these
+        if (! testStringNotNull(name, "show name")) {
+            return new TVShow("ERRORVOID");
+        }
+        if (!langStr.isEmpty()){
+            if(! testIsChar2(langStr)) {
+                return new TVShow("ERRORVOID");
+            } else {
+                language = toChar2(langStr);
+            }
+        }
+        if(! seasonStr.isEmpty()){
+            //TODO check if zero or positive integer
+            season = Integer.parseInt(seasonStr);
+        }
+
+        //Construct new TVShow object
+        TVShow newShow = new TVShow(name);
+        //assign attributes if defined
+        if(format != null) newShow.format = format;
+        newShow.containerID = containerID;
+        if(genre != null ) newShow.genre = genre;
+        if(language != null) newShow.language =language;
+        if(season > -1) newShow.season = season;
+        if(rating != null) newShow.rating = rating;
+
+        return newShow;
+
+    }
+
+    private void resetTVShowForm() {
+        //clear the JTable selection
+        tvTable.clearSelection();
+        selectedTVShow = -1;
+
+        //clear the input fields
+        tvShowTitleTextField.setText("");
+        tvShowFormatTextField.setText("");
+        tvShowGenreTextBox.setText("");
+        tvShowLangTextBox.setText("");
+        tvShowSeasonTextBox.setText("");
+        tvShowRatingTextBox.setText("");
+
+        //reset the combo box
+        //tvShowContainerComboBox.setSelectedIndex(0)
+        //don't though, so we can enter multiple shows in a box
 
     }
 

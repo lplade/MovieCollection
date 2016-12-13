@@ -77,8 +77,8 @@ public class TVTableModel extends AbstractTableModel {
         }
     }
 
-    TVShow getShowAtRow(int rowIndex){
-        return allShows.get(rowIndex);
+    public TVShow getRow(int row){
+        return allShows.get(row);
     }
 
     @Override

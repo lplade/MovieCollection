@@ -18,6 +18,7 @@ Manually initialize database as follows:
     
 ## Future features ##
 * Use ORM to manage MySQL<->classes
+* Split each entity's forms into own classes, then re-use common methods
 * Query online sources to populate data about shows
 * Use SQLite
 
